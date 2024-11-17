@@ -1,5 +1,6 @@
 package ui;
 
+import controller.Controller;
 import domain.Friend;
 import domain.User;
 import domain.validators.FriendValidator;
@@ -8,6 +9,7 @@ import domain.validators.Validator;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import repository.Repository;
 import repository.database.FriendDBRepository;
@@ -16,17 +18,13 @@ import service.Service;
 
 import java.io.IOException;
 
-public class HelloApplication extends Application {
-    @Override
-    public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-        stage.setTitle("Hello!");
-        stage.setScene(scene);
-        stage.show();
-    }
+public class MainApplication extends Application {
 
-    public static void main(String[] args) {
+    private Service service;
+
+    @Override
+    public void start(Stage primaryStage) throws IOException {
+
         String url = "jdbc:postgresql://192.168.0.206:5432/SOCIAL_NETWORK_MAP";
         String user = "postgres";
         String password = "1234";
@@ -37,10 +35,28 @@ public class HelloApplication extends Application {
         Validator<User> validator = new UserValidator();
         Validator<Friend> validatorFriend = new FriendValidator();
 
-        Service service = new Service(repoUser, repoFriend, validator, validatorFriend);
-        Ui ui = new Ui(service);
+        service = new Service(repoUser, repoFriend, validator, validatorFriend);
 
-        ui.run();
+        initView(primaryStage);
+        primaryStage.show();
+    }
+
+    private void initView(Stage primaryStage) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("sign-in.fxml"));
+
+        Pane root = fxmlLoader.load();
+        primaryStage.setScene(new Scene(root));
+
+        root.requestFocus();
+        primaryStage.setResizable(false);
+        primaryStage.setTitle("Sign In");
+
+        Controller controller = fxmlLoader.getController();
+        controller.setService(service);
+        controller.setStage(primaryStage);
+    }
+
+    public static void main(String[] args) {
         launch();
     }
 }

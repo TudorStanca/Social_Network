@@ -9,5 +9,10 @@ module ui {
     requires com.fasterxml.jackson.databind;
 
     opens ui to javafx.fxml;
+    opens controller to javafx.fxml;
+    exports controller;
     exports ui;
+    exports domain;
+    exports repository;
+    exports service;
 }

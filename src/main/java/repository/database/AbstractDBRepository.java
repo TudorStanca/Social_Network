@@ -20,9 +20,9 @@ import java.util.regex.Pattern;
 
 public abstract class AbstractDBRepository<ID, E extends Entity<ID>> implements Repository<ID, E> {
 
-    private final String databaseUser;
-    private final String databasePassword;
-    private final String databaseURL;
+    protected final String databaseUser;
+    protected final String databasePassword;
+    protected final String databaseURL;
 
     /**
      * Constructor for AbstractDBRepository
@@ -62,8 +62,7 @@ public abstract class AbstractDBRepository<ID, E extends Entity<ID>> implements 
      */
     private void throwDatabaseExceptions(String errorType, String msg) throws MyException {
         switch (errorType) {
-            case "23505" ->
-                    throw new DataBaseUniqueConstraintViolationError("The entity " + getForeignKeyFromError(msg) + " already exists");
+            case "23505" -> throw new DataBaseUniqueConstraintViolationError("The entity " + getForeignKeyFromError(msg) + " already exists");
             case "P0001" -> throw new DataBaseUniqueConstraintViolationError("The entity already exists");
             case "23503" -> throw new ForeignKeyViolationException(getForeignKeyFromError(msg));
             default -> throw new DatabaseConnectionException();
@@ -132,7 +131,6 @@ public abstract class AbstractDBRepository<ID, E extends Entity<ID>> implements 
             if (resultSet.next()) {
                 return Optional.of(queryToEntity(resultSet));
             }
-            //conn.close();
             return Optional.empty();
         } catch (SQLException e) {
             throw new DatabaseConnectionException();
@@ -147,7 +145,6 @@ public abstract class AbstractDBRepository<ID, E extends Entity<ID>> implements 
             while (rs.next()) {
                 lst.add(queryToEntity(rs));
             }
-            //conn.close();
             return lst;
         } catch (SQLException e) {
             throw new DatabaseConnectionException();
@@ -159,7 +156,6 @@ public abstract class AbstractDBRepository<ID, E extends Entity<ID>> implements 
         Optional.ofNullable(entity).orElseThrow(() -> new IllegalArgumentException("Entity cannot be null"));
         try (Connection conn = DriverManager.getConnection(databaseURL, databaseUser, databasePassword)) {
             saveToDatabase(entity, conn).execute();
-            //conn.close();
         } catch (SQLException e) {
             throwDatabaseExceptions(e.getSQLState(), e.getMessage());
         }
@@ -172,7 +168,6 @@ public abstract class AbstractDBRepository<ID, E extends Entity<ID>> implements 
         entity.ifPresent((_) -> {
             try (Connection conn = DriverManager.getConnection(databaseURL, databaseUser, databasePassword)) {
                 deleteFromDatabase(id, conn).execute();
-                //conn.close();
             } catch (SQLException e) {
                 throw new DatabaseConnectionException();
             }
@@ -186,7 +181,6 @@ public abstract class AbstractDBRepository<ID, E extends Entity<ID>> implements 
         optionalEntity.ifPresent((_) -> {
             try (Connection conn = DriverManager.getConnection(databaseURL, databaseUser, databasePassword)) {
                 updateDatabase(entity, conn).execute();
-                //conn.close();
             } catch (SQLException e) {
                 throwDatabaseExceptions(e.getSQLState(), e.getMessage());
             }

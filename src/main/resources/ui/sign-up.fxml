@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.SignUpController">
+   <children>
+      <Label alignment="TOP_CENTER" layoutX="152.0" layoutY="34.0" text="Create an account" AnchorPane.bottomAnchor="553.0" AnchorPane.leftAnchor="152.0" AnchorPane.rightAnchor="152.0" AnchorPane.topAnchor="30.0" />
+      <VBox alignment="TOP_CENTER" layoutX="74.0" layoutY="48.0" prefHeight="481.0" prefWidth="253.0" spacing="15.0" AnchorPane.bottomAnchor="70.0" AnchorPane.leftAnchor="70.0" AnchorPane.rightAnchor="70.0" AnchorPane.topAnchor="100.0">
+         <children>
+            <HBox prefHeight="0.0" prefWidth="253.0">
+               <children>
+                  <TextField fx:id="firstName" promptText="First Name" />
+                  <TextField fx:id="lastName" promptText="Last Name" />
+               </children>
+            </HBox>
+            <TextField fx:id="emailAddress" promptText="Email Address" />
+            <PasswordField fx:id="password" promptText="Password" />
+            <Button mnemonicParsing="false" onAction="#handleSignUpButton" text="Sign Up" />
+            <HBox alignment="TOP_CENTER" prefHeight="0.0" prefWidth="260.0">
+               <children>
+                  <Label prefHeight="23.0" prefWidth="135.0" text="Already have an account?" />
+                  <Hyperlink onAction="#handleSignInHyperlink" prefHeight="23.0" prefWidth="45.0" text="Sign In" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

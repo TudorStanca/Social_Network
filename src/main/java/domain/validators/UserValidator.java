@@ -21,6 +21,13 @@ public class UserValidator implements Validator<User> {
             errors += "Last name starts with lower case letter!\n";
         }
 
+        if(entity.getEmail().isEmpty()){
+            errors += "Email is required!\n";
+        }
+        else if (!entity.getEmail().matches(".+@[A-Za-z]+\\.com")) {
+            errors += "Invalid email address!\n";
+        }
+
         if (!errors.isEmpty()) {
             throw new ValidationException(errors);
         }

@@ -5,9 +5,11 @@ import domain.Graph;
 import domain.User;
 import domain.exceptions.IdNotFoundException;
 import domain.exceptions.ObjectAlreadyInRepositoryException;
+import domain.exceptions.UserNotFoundInDatabase;
 import domain.exceptions.ValidationException;
 import domain.validators.Validator;
 import repository.Repository;
+import repository.database.UserDBRepository;
 
 import java.util.Map;
 import java.util.Optional;
@@ -85,6 +87,14 @@ public class Service {
         }
     }
 
+    public User findUserByEmailPassword(String email, String password) {
+        Optional<User> user = ((UserDBRepository) repoUser).findOne(email, password);
+        if(user.isEmpty()) {
+            throw new UserNotFoundInDatabase(email);
+        }
+        return user.get();
+    }
+
     /**
      * Adds a user to the repository
      *
@@ -94,8 +104,8 @@ public class Service {
      * @throws ValidationException                if the new user is not valid
      * @throws ObjectAlreadyInRepositoryException if the user is already in repository
      */
-    public User addUser(String firstname, String lastname) {
-        User newUser = new User(firstname, lastname);
+    public User addUser(String firstname, String lastname, String email, String password) {
+        User newUser = new User(firstname, lastname, email, password);
         validatorUser.validate(newUser);
         if (repoUser.save(newUser).isPresent()) {
             throw new ObjectAlreadyInRepositoryException(newUser);
@@ -130,8 +140,8 @@ public class Service {
      * @throws IdNotFoundException      if the id has not been found in repository
      * @throws IllegalArgumentException if the id is null
      */
-    public User updateUser(Long id, String firstname, String lastname) {
-        User newUser = new User(firstname, lastname);
+    public User updateUser(Long id, String firstname, String lastname, String email, String password) {
+        User newUser = new User(firstname, lastname, email, password);
         newUser.setId(id);
         validatorUser.validate(newUser);
         if (repoUser.update(newUser).isPresent()) {

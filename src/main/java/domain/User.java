@@ -13,6 +13,9 @@ public class User extends Entity<Long> {
     @JsonProperty("lastName")
     private String lastName;
 
+    private String email;
+    private String password;
+
     /**
      * Default constructor for JSON
      */
@@ -25,9 +28,11 @@ public class User extends Entity<Long> {
      * @param firstName The first name of the user
      * @param lastName  The last name of the user
      */
-    public User(String firstName, String lastName) {
+    public User(String firstName, String lastName, String email, String password) {
         this.firstName = firstName;
         this.lastName = lastName;
+        this.email = email;
+        this.password = password;
     }
 
     public String getFirstName() {
@@ -44,6 +49,22 @@ public class User extends Entity<Long> {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override

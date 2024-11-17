@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="600.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.SignInController">
+   <children>
+      <Label layoutX="133.0" layoutY="44.0" text="Sign in to Social Network" AnchorPane.bottomAnchor="553.0" AnchorPane.leftAnchor="133.0" AnchorPane.rightAnchor="133.0" AnchorPane.topAnchor="30.0" />
+      <VBox alignment="TOP_CENTER" layoutX="150.0" layoutY="162.0" prefHeight="430.0" prefWidth="260.0" spacing="15.0" AnchorPane.bottomAnchor="70.0" AnchorPane.leftAnchor="70.0" AnchorPane.rightAnchor="70.0" AnchorPane.topAnchor="100.0">
+         <children>
+            <TextField fx:id="emailAddress" promptText="Email Address" text="john.doe@gmail.com" />
+            <PasswordField fx:id="password" promptText="Password" text="1234" />
+            <Button mnemonicParsing="false" onAction="#handleSignInButton" text="Sign In" />
+            <HBox alignment="TOP_CENTER" prefHeight="23.0" prefWidth="260.0">
+               <children>
+                  <Label prefHeight="23.0" prefWidth="124.0" text="Don't have an account?" />
+                  <Hyperlink onAction="#handleSignUpHyperlink" prefHeight="23.0" prefWidth="50.0" text="Sign Up" />
+               </children>
+            </HBox>
+         </children></VBox>
+   </children>
+</AnchorPane>
