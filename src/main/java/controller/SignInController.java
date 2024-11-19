@@ -7,8 +7,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import ui.MainApplication;
+
+import java.io.IOException;
 
 public class SignInController extends Controller {
 
@@ -21,13 +24,6 @@ public class SignInController extends Controller {
     public void setTextFields(String email, String password) {
         this.emailAddress.setText(email);
         this.password.setText(password);
-    }
-
-    @Override
-    protected Stage initNewView(FXMLLoader fxmlLoader, String title){
-        Stage stage = super.initNewView(fxmlLoader, title);
-        stage.setResizable(false);
-        return stage;
     }
 
     @FXML
@@ -48,16 +44,20 @@ public class SignInController extends Controller {
         catch (MyException e) {
             MessageAlert.showError(stage, e.getMessage());
         }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
     private void handleSignUpHyperlink(ActionEvent event) {
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("sign-up.fxml"));
-
-        Stage signUpStage = initNewView(fxmlLoader, "Sign Up");
-        initController(fxmlLoader, signUpStage);
-
-        stage.close();
-        signUpStage.show();
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("sign-up.fxml"));
+            changeRoot(fxmlLoader);
+            initController(fxmlLoader, stage);
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
     }
 }

@@ -1,7 +1,94 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="controller.UserInterfaceController" prefHeight="400.0" prefWidth="600.0">
-
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="1080.0" prefWidth="1920.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.UserInterfaceController">
+   <children>
+      <VBox alignment="TOP_CENTER" prefHeight="1080.0" prefWidth="256.0" style="-fx-background-color: #8d9394;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="1664.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <ImageView fitHeight="128.0" fitWidth="128.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/user-icon.png" />
+               </image>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin></ImageView>
+            <Label text="User name">
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+               <padding>
+                  <Insets bottom="25.0" top="25.0" />
+               </padding>
+            </Label>
+            <Button alignment="TOP_LEFT" graphicTextGap="53.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="256.0" text="Home">
+               <cursor>
+                  <Cursor fx:constant="NONE" />
+               </cursor>
+               <graphic>
+                  <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../images/home.png" />
+                     </image>
+                     <viewport>
+                        <Rectangle2D />
+                     </viewport>
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button alignment="TOP_LEFT" graphicTextGap="53.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="256.0" text="Search">
+               <graphic>
+                  <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../images/search.png" />
+                     </image>
+                  </ImageView>
+               </graphic></Button>
+            <Button alignment="TOP_LEFT" graphicTextGap="53.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="256.0" text="Messages">
+               <graphic>
+                  <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../images/messages.png" />
+                     </image>
+                  </ImageView>
+               </graphic></Button>
+            <Button alignment="TOP_LEFT" graphicTextGap="53.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="256.0" text="Profile">
+               <graphic>
+                  <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../images/profile.png" />
+                     </image>
+                  </ImageView>
+               </graphic></Button>
+            <Button alignment="TOP_LEFT" graphicTextGap="53.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="256.0" text="Sign Out">
+               <graphic>
+                  <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../images/sign-out.png" />
+                     </image>
+                  </ImageView>
+               </graphic></Button>
+         </children>
+         <padding>
+            <Insets top="50.0" />
+         </padding>
+      </VBox>
+      <BorderPane layoutX="631.0" layoutY="292.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="256.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <right>
+            <VBox prefHeight="1080.0" prefWidth="512.0" spacing="100.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Label text="Friends list" />
+                  <ListView prefHeight="540.0" prefWidth="512.0" />
+               </children>
+               <BorderPane.margin>
+                  <Insets top="40.0" />
+               </BorderPane.margin>
+            </VBox>
+         </right>
+      </BorderPane>
+   </children>
 </AnchorPane>

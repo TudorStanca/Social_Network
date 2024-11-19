@@ -7,8 +7,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.stage.Stage;
 import ui.MainApplication;
+
+import java.io.IOException;
 
 public class SignUpController extends Controller {
 
@@ -24,13 +25,6 @@ public class SignUpController extends Controller {
     @FXML
     private PasswordField password;
 
-    @Override
-    protected Stage initNewView(FXMLLoader fxmlLoader, String title){
-        Stage stage = super.initNewView(fxmlLoader, title);
-        stage.setResizable(false);
-        return stage;
-    }
-
     @FXML
     private void handleSignUpButton(ActionEvent event) {
         String firstName = this.firstName.getText();
@@ -42,27 +36,27 @@ public class SignUpController extends Controller {
             MessageAlert.showMessage(stage, "Account create confirmation", "The new account: " + user.toString() + " has been successfully created");
 
             FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("sign-in.fxml"));
+            changeRoot(fxmlLoader);
 
-            Stage signInStage = initNewView(fxmlLoader, "Sign In");
-
-            SignInController signInController = (SignInController) initController(fxmlLoader, signInStage);
+            SignInController signInController = (SignInController) initController(fxmlLoader, stage);
             signInController.setTextFields(email, password);
-
-            stage.close();
-            signInStage.show();
         } catch (MyException e) {
             MessageAlert.showError(stage, e.getMessage());
+        }
+        catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     @FXML
     private void handleSignInHyperlink(ActionEvent event) {
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("sign-in.fxml"));
-        Stage signInStage = initNewView(fxmlLoader, "Sign In");
-
-        initController(fxmlLoader, signInStage);
-
-        stage.close();
-        signInStage.show();
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("sign-in.fxml"));
+            changeRoot(fxmlLoader);
+            initController(fxmlLoader, stage);
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
     }
 }
