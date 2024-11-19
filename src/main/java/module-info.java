@@ -7,6 +7,7 @@ module ui {
     requires com.fasterxml.jackson.annotation;
     requires java.sql;
     requires com.fasterxml.jackson.databind;
+    requires jdk.compiler;
 
     opens ui to javafx.fxml;
     opens controller to javafx.fxml;
