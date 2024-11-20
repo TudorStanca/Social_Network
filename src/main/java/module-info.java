@@ -11,7 +11,9 @@ module ui {
 
     opens ui to javafx.fxml;
     opens controller to javafx.fxml;
+    opens controller.mainUiPages to javafx.fxml;
     exports controller;
+    exports controller.mainUiPages;
     exports ui;
     exports domain;
     exports repository;

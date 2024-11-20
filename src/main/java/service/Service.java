@@ -10,20 +10,25 @@ import domain.exceptions.ValidationException;
 import domain.validators.Validator;
 import repository.Repository;
 import repository.database.UserDBRepository;
+import utils.Constants;
+import utils.events.Event;
+import utils.events.FriendRequestEvent;
+import utils.observer.Observable;
+import utils.observer.Observer;
 
-import java.util.Map;
-import java.util.Optional;
-import java.util.HashMap;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.StreamSupport;
 
-public class Service {
+public class Service implements Observable<Event> {
 
     private final Repository<Long, User> repoUser;
     private final Repository<Long, Friend> repoFriend;
 
     private final Validator<User> validatorUser;
     private final Validator<Friend> validatorFriend;
+
+    private List<Observer<Event>> observers = new ArrayList<>();
 
     /**
      * Constructor for Service
@@ -38,6 +43,21 @@ public class Service {
         this.repoFriend = repoFriend;
         this.validatorUser = validatorUser;
         this.validatorFriend = validatorFriend;
+    }
+
+    @Override
+    public void addObserver(Observer<Event> observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void removeObserver(Observer<Event> observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers(Event event) {
+        observers.forEach(observer -> observer.update(event));
     }
 
     /**
@@ -93,6 +113,10 @@ public class Service {
             throw new UserNotFoundInDatabase(email);
         }
         return user.get();
+    }
+
+    public Iterable<User> findUserCandidateFriends(Long userId){
+        return ((UserDBRepository) repoUser).findUserCandidateFriends(userId);
     }
 
     /**
@@ -162,12 +186,15 @@ public class Service {
      * @throws IllegalArgumentException           if the given ids are null
      */
     public Friend addFriend(Long id1, Long id2) {
-        Friend newFriend = new Friend(id1, id2);
+        Friend newFriend = new Friend(id1, id2, false, LocalDateTime.now());
         validatorFriend.validate(newFriend);
 
         if (repoFriend.save(newFriend).isPresent()) {
             throw new ObjectAlreadyInRepositoryException(newFriend);
         }
+
+        notifyObservers(new FriendRequestEvent(id2));
+
         return newFriend;
     }
 
@@ -198,11 +225,11 @@ public class Service {
      * @throws ValidationException                if the new friendship is not valid
      * @throws IllegalArgumentException           if id is null
      */
-    public Friend updateFriend(Long id, Long idNewFriend) {
+    public Friend updateFriend(Long id, Long idNewFriend, boolean newStatus, LocalDateTime newTime) {
         Optional<Friend> friend = repoFriend.findOne(id);
         friend.orElseThrow(() -> new IdNotFoundException(id));
 
-        Friend newFriend = new Friend(friend.get().getFirstFriend(), idNewFriend);
+        Friend newFriend = new Friend(friend.get().getFirstFriend(), idNewFriend, newStatus, newTime);
         newFriend.setId(id);
         validatorFriend.validate(newFriend);
 

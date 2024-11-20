@@ -69,10 +69,8 @@ public class User extends Entity<Long> {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        Optional.ofNullable(getId()).ifPresent(x -> sb.append(x).append(". "));
-        sb.append(firstName).append(" ").append(lastName);
-        return sb.toString();
+        //Optional.ofNullable(getId()).ifPresent(x -> sb.append(x).append(". "));
+        return firstName + " " + lastName;
     }
 
     @Override
@@ -84,11 +82,11 @@ public class User extends Entity<Long> {
             return false;
         }
         User other = (User) obj;
-        return getId().equals(other.getId()) && firstName.equals(other.firstName) && lastName.equals(other.lastName);
+        return email.equals(other.email);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getId(), firstName, lastName);
+        return Objects.hash(email);
     }
 }

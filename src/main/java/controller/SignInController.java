@@ -36,7 +36,9 @@ public class SignInController extends Controller {
             FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("user-interface.fxml"));
 
             Stage userInterfaceStage = initNewView(fxmlLoader, "Social Network");
-            initController(fxmlLoader, userInterfaceStage);
+            Controller controller = initController(fxmlLoader, userInterfaceStage);
+            ((UserInterfaceController) controller).setConnectedUser(user);
+            ((UserInterfaceController) controller).setupStageOnCloseRequestEventHandler();
 
             stage.close();
             userInterfaceStage.show();

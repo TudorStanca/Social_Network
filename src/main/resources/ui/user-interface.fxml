@@ -17,11 +17,11 @@
                   <Insets top="50.0" />
                </VBox.margin>
             </ImageView>
-            <Label text="USERNAME">
+            <Label fx:id="connectedUserLabel" text="USERNAME">
                <VBox.margin>
                   <Insets bottom="60.0" top="30.0" />
                </VBox.margin></Label>
-            <Button fx:id="homeButton" alignment="TOP_LEFT" mnemonicParsing="false" text="Home" onAction="#handleHomeButton">
+            <Button fx:id="homeButton" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#handleHomeButton" text="Home">
                <graphic>
                   <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
                      <image>
@@ -29,7 +29,7 @@
                      </image></ImageView>
                </graphic>
             </Button>
-            <Button fx:id="searchButton" alignment="TOP_LEFT" mnemonicParsing="false" text="Search" onAction="#handleSearchButton">
+            <Button fx:id="searchButton" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#handleSearchButton" text="Search">
                <graphic>
                   <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
                      <image>
@@ -53,7 +53,7 @@
                      </image></ImageView>
                </graphic>
             </Button>
-            <Button fx:id="signOutButton" alignment="TOP_LEFT" mnemonicParsing="false" text="Sign Out">
+            <Button fx:id="signOutButton" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#handleSignOutButton" text="Sign Out">
                <graphic>
                   <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
                      <image>
@@ -63,30 +63,5 @@
             </Button>
          </children>
       </VBox>
-      <BorderPane fx:id="homeBorderPane" layoutX="273.0" layoutY="216.0" prefHeight="600.0" prefWidth="336.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <center>
-            <VBox prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #223047;" BorderPane.alignment="CENTER" />
-         </center>
-         <right>
-            <VBox prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #4d0e27;" BorderPane.alignment="CENTER" />
-         </right></BorderPane>
-      <fx:define>
-         <BorderPane fx:id="searchBorderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1">
-            <center>
-               <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER" />
-            </center>
-            <top>
-               <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="25.0" BorderPane.alignment="CENTER">
-                  <children>
-                     <Label text="Search" />
-                     <TextField />
-                  </children>
-                  <padding>
-                     <Insets left="15.0" />
-                  </padding>
-               </HBox>
-            </top>
-         </BorderPane>
-      </fx:define>
    </children>
 </AnchorPane>

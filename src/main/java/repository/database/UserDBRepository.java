@@ -4,6 +4,8 @@ import domain.User;
 import domain.exceptions.DatabaseConnectionException;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class UserDBRepository extends AbstractDBRepository<Long, User> {
@@ -83,6 +85,34 @@ public class UserDBRepository extends AbstractDBRepository<Long, User> {
                 return Optional.of(queryToEntity(resultSet));
             }
             return Optional.empty();
+        } catch (SQLException e) {
+            throw new DatabaseConnectionException();
+        }
+    }
+
+    public Iterable<User> findUserCandidateFriends(Long id) {
+        String query = "SELECT U.* " +
+                "FROM USERS U " +
+                "WHERE U.ID NOT IN (SELECT U.ID " +
+                "    FROM USERS U " +
+                "    INNER JOIN FRIENDS F on U.id = F.id_user_1 OR U.id = F.id_user_2 " +
+                "    WHERE (F.id_user_1 = ? OR F.id_user_2 = ?) AND U.id != ?) AND U.ID != ?";
+        Optional.ofNullable(id).orElseThrow(() -> new IllegalArgumentException("Id cannot be null"));
+
+        try (Connection conn = DriverManager.getConnection(databaseURL, databaseUser, databasePassword)) {
+            PreparedStatement statement = conn.prepareStatement(query);
+            statement.setLong(1, id);
+            statement.setLong(2, id);
+            statement.setLong(3, id);
+            statement.setLong(4, id);
+            ResultSet resultSet = statement.executeQuery();
+            List<User> lst = new ArrayList<>();
+            if (resultSet.next()) {
+                do {
+                    lst.add(queryToEntity(resultSet));
+                } while (resultSet.next());
+            }
+            return lst;
         } catch (SQLException e) {
             throw new DatabaseConnectionException();
         }

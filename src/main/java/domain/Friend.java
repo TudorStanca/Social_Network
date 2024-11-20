@@ -2,6 +2,7 @@ package domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -9,6 +10,10 @@ public class Friend extends Entity<Long> {
 
     @JsonProperty("friendship")
     private Tuple<Long> friendship;
+
+    private boolean status;
+
+    private LocalDateTime friendsFrom;
 
     /**
      * Default constructor for JSON
@@ -22,8 +27,10 @@ public class Friend extends Entity<Long> {
      * @param id1 the id of the first user
      * @param id2 the id of the second user
      */
-    public Friend(Long id1, Long id2) {
+    public Friend(Long id1, Long id2, boolean status, LocalDateTime friendsFrom) {
         friendship = new Tuple<>(id1, id2);
+        this.status = status;
+        this.friendsFrom = friendsFrom;
     }
 
     public Tuple<Long> getFriendship() {
@@ -38,12 +45,28 @@ public class Friend extends Entity<Long> {
         return friendship.getSecond();
     }
 
+    public boolean getStatus() {
+        return status;
+    }
+
+    public LocalDateTime getFriendsFrom() {
+        return friendsFrom;
+    }
+
     public boolean hasFriend(Long id) {
         return friendship.hasEntity(id);
     }
 
     public void setFriendship(Tuple<Long> friendship) {
         this.friendship = friendship;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
+
+    public void setFriendsFrom(LocalDateTime friendsFrom) {
+        this.friendsFrom = friendsFrom;
     }
 
     @Override
