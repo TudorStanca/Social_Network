@@ -1,9 +1,9 @@
 package controller;
 
-import controller.mainUiPages.HomePageController;
 import controller.mainUiPages.ObserverController;
-import controller.mainUiPages.SearchPageController;
 import domain.User;
+import domain.dto.ControllerDTO;
+import domain.exceptions.SetupControllerException;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
@@ -16,8 +16,9 @@ import javafx.stage.Stage;
 import ui.MainApplication;
 
 import java.io.IOException;
+import java.util.Optional;
 
-public class UserInterfaceController extends Controller {
+public class UserInterfaceController extends AbstractController {
 
     private static final double width = Screen.getPrimary().getBounds().getWidth() * 0.75;
     private static final double height = Screen.getPrimary().getBounds().getHeight() * 0.75;
@@ -36,17 +37,6 @@ public class UserInterfaceController extends Controller {
     @FXML
     private Button homeButton, searchButton, messagesButton, profileButton, signOutButton;
 
-    public void setConnectedUser(User connectedUser) {
-        this.connectedUser = connectedUser;
-        connectedUserLabel.setText(connectedUser.toString());
-    }
-
-    public void setupStageOnCloseRequestEventHandler(){
-        stage.setOnCloseRequest(event -> {
-            service.removeObserver(currentController);
-        });
-    }
-
     private void changeBorderPane(Pane newBorderPane) {
         root.getChildren().setAll(leftVBox, newBorderPane);
         AnchorPane.setTopAnchor(newBorderPane, 0.0);
@@ -60,14 +50,6 @@ public class UserInterfaceController extends Controller {
 
         root.setPrefSize(width, height);
         leftVBox.setPrefSize(width * 0.20, height);
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("mainUiPages/home-page.fxml"));
-            Pane homeBorderPane = fxmlLoader.load();
-            initController(fxmlLoader, stage);
-            changeBorderPane(homeBorderPane);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         homeButton.setPrefSize(leftVBox.getPrefWidth(), 50);
         homeButton.setGraphicTextGap(leftVBox.getPrefWidth() / 2 - 75);
@@ -87,9 +69,11 @@ public class UserInterfaceController extends Controller {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("mainUiPages/home-page.fxml"));
             Pane homeBorderPane = fxmlLoader.load();
-            Controller controller = initController(fxmlLoader, stage);
-            service.addObserver((HomePageController) controller);
+
+            Controller controller = fxmlLoader.getController();
+            controller.setupController(new ControllerDTO(service, stage, connectedUser));
             currentController = (ObserverController) controller;
+
             changeBorderPane(homeBorderPane);
         } catch (IOException e) {
             e.printStackTrace();
@@ -102,10 +86,11 @@ public class UserInterfaceController extends Controller {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("mainUiPages/search-page.fxml"));
             Pane searchBorderPane = fxmlLoader.load();
-            Controller controller = initController(fxmlLoader, stage);
-            ((SearchPageController) controller).setConnectedUserId(connectedUser.getId());
-            service.addObserver((SearchPageController) controller);
+
+            Controller controller = fxmlLoader.getController();
+            controller.setupController(new ControllerDTO(service, stage, connectedUser.getId()));
             currentController = (ObserverController) controller;
+
             changeBorderPane(searchBorderPane);
         } catch (IOException e) {
             e.printStackTrace();
@@ -128,7 +113,8 @@ public class UserInterfaceController extends Controller {
             FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("sign-in.fxml"));
 
             Stage signInStage = initNewView(fxmlLoader, "Sign In");
-            initController(fxmlLoader, signInStage);
+            Controller controller = fxmlLoader.getController();
+            controller.setupController(new ControllerDTO(service, signInStage));
 
             stage.close();
             signInStage.show();
@@ -136,5 +122,31 @@ public class UserInterfaceController extends Controller {
         catch(IOException e){
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void setupController(ControllerDTO controllerDTO) {
+        service = controllerDTO.getService();
+        stage = controllerDTO.getStage();
+        Optional.ofNullable(service).orElseThrow(() -> new SetupControllerException("Service is null in user interface controller"));
+        Optional.ofNullable(stage).orElseThrow(() -> new SetupControllerException("Stage is null in user interface controller"));
+
+        Long id = controllerDTO.getConnectedUserId();
+        String firstName = controllerDTO.getConnectedUserFirstName();
+        String lastName = controllerDTO.getConnectedUserLastName();
+        String email = controllerDTO.getConnectedUserEmail();
+        String password = controllerDTO.getConnectedUserPassword();
+        Optional.ofNullable(id).orElseThrow(() -> new SetupControllerException("User id is null in user interface controller"));
+        Optional.ofNullable(firstName).orElseThrow(() -> new SetupControllerException("User first name is null in user interface controller"));
+        Optional.ofNullable(lastName).orElseThrow(() -> new SetupControllerException("User last name is null in user interface controller"));
+        Optional.ofNullable(email).orElseThrow(() -> new SetupControllerException("User email is null in user interface controller"));
+        Optional.ofNullable(password).orElseThrow(() -> new SetupControllerException("User password is null in user interface controller"));
+        connectedUser = new User(firstName, lastName, email, password);
+        connectedUser.setId(id);
+        connectedUserLabel.setText(connectedUser.toString());
+
+        stage.setOnCloseRequest(event -> {
+            service.removeObserver(currentController);
+        });
     }
 }
