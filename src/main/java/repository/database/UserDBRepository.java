@@ -1,9 +1,13 @@
 package repository.database;
 
 import domain.User;
+import domain.dto.UserDTO;
 import domain.exceptions.DatabaseConnectionException;
 
 import java.sql.*;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -91,12 +95,13 @@ public class UserDBRepository extends AbstractDBRepository<Long, User> {
     }
 
     public Iterable<User> findUserCandidateFriends(Long id) {
-        String query = "SELECT U.* " +
-                "FROM USERS U " +
-                "WHERE U.ID NOT IN (SELECT U.ID " +
-                "    FROM USERS U " +
-                "    INNER JOIN FRIENDS F on U.id = F.id_user_1 OR U.id = F.id_user_2 " +
-                "    WHERE (F.id_user_1 = ? OR F.id_user_2 = ?) AND U.id != ?) AND U.ID != ?";
+        String query = """
+                SELECT U.*
+                FROM USERS U
+                WHERE U.ID NOT IN (SELECT U.ID
+                    FROM USERS U
+                    INNER JOIN FRIENDS F on U.id = F.id_user_1 OR U.id = F.id_user_2
+                    WHERE (F.id_user_1 = ? OR F.id_user_2 = ?) AND U.id != ?) AND U.ID != ?""";
         Optional.ofNullable(id).orElseThrow(() -> new IllegalArgumentException("Id cannot be null"));
 
         try (Connection conn = DriverManager.getConnection(databaseURL, databaseUser, databasePassword)) {

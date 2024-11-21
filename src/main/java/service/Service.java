@@ -3,15 +3,19 @@ package service;
 import domain.Friend;
 import domain.Graph;
 import domain.User;
+import domain.dto.FriendDTO;
+import domain.dto.UserDTO;
 import domain.exceptions.IdNotFoundException;
 import domain.exceptions.ObjectAlreadyInRepositoryException;
 import domain.exceptions.UserNotFoundInDatabase;
 import domain.exceptions.ValidationException;
 import domain.validators.Validator;
 import repository.Repository;
+import repository.database.FriendDBRepository;
 import repository.database.UserDBRepository;
 import utils.Constants;
 import utils.events.Event;
+import utils.events.EventType;
 import utils.events.FriendRequestEvent;
 import utils.observer.Observable;
 import utils.observer.Observer;
@@ -107,6 +111,11 @@ public class Service implements Observable<Event> {
         }
     }
 
+    public User findOneUser(Long idUser){
+        Optional<User> user = repoUser.findOne(idUser);
+        return user.orElse(null);
+    }
+
     public User findUserByEmailPassword(String email, String password) {
         Optional<User> user = ((UserDBRepository) repoUser).findOne(email, password);
         if(user.isEmpty()) {
@@ -117,6 +126,10 @@ public class Service implements Observable<Event> {
 
     public Iterable<User> findUserCandidateFriends(Long userId){
         return ((UserDBRepository) repoUser).findUserCandidateFriends(userId);
+    }
+
+    public Iterable<FriendDTO> findPendingRecievingFriendRequests(Long userId){
+        return ((FriendDBRepository) repoFriend).findUsersWithPendingFriendRequests(userId);
     }
 
     /**
@@ -193,7 +206,7 @@ public class Service implements Observable<Event> {
             throw new ObjectAlreadyInRepositoryException(newFriend);
         }
 
-        notifyObservers(new FriendRequestEvent(id2));
+        notifyObservers(new FriendRequestEvent(id2, EventType.CREATE_REQUEST));
 
         return newFriend;
     }
@@ -211,6 +224,9 @@ public class Service implements Observable<Event> {
         if (friend.isEmpty()) {
             throw new IdNotFoundException(id);
         }
+
+        notifyObservers(new FriendRequestEvent(id, friend.get(), EventType.DELETE_REQUEST));
+
         return friend.get();
     }
 
@@ -218,24 +234,26 @@ public class Service implements Observable<Event> {
      * Updates a friendship from the repository
      *
      * @param id          The id of the friendship that is being updated
-     * @param idNewFriend The new id of the second friend
      * @return The new Friend
      * @throws IdNotFoundException                if the idNewFriend doesn't have a corresponding user
      * @throws ObjectAlreadyInRepositoryException if the new friendship already exists
      * @throws ValidationException                if the new friendship is not valid
      * @throws IllegalArgumentException           if id is null
      */
-    public Friend updateFriend(Long id, Long idNewFriend, boolean newStatus, LocalDateTime newTime) {
+    public Friend updateFriend(Long id, boolean newStatus, LocalDateTime newTime) {
         Optional<Friend> friend = repoFriend.findOne(id);
         friend.orElseThrow(() -> new IdNotFoundException(id));
 
-        Friend newFriend = new Friend(friend.get().getFirstFriend(), idNewFriend, newStatus, newTime);
-        newFriend.setId(id);
-        validatorFriend.validate(newFriend);
+        Friend newFriend = friend.get();
+        newFriend.setStatus(newStatus);
+        newFriend.setFriendsFrom(newTime);
 
         if (repoFriend.update(newFriend).isPresent()) {
             throw new IdNotFoundException(id);
         }
+
+        notifyObservers(new FriendRequestEvent(id, EventType.ACCEPT_REQUEST));
+
         return newFriend;
     }
 

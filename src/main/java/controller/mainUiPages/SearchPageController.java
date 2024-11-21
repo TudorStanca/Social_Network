@@ -2,8 +2,10 @@ package controller.mainUiPages;
 
 import controller.AbstractController;
 import controller.Controller;
+import domain.Friend;
 import domain.User;
 import domain.dto.ControllerDTO;
+import domain.dto.FriendDTO;
 import domain.dto.UserDTO;
 import domain.exceptions.SetupControllerException;
 import javafx.collections.FXCollections;
@@ -15,7 +17,9 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import ui.MainApplication;
+import utils.FriendButtonType;
 import utils.events.Event;
+import utils.events.EventType;
 import utils.events.FriendRequestEvent;
 
 import java.io.IOException;
@@ -55,7 +59,7 @@ public class SearchPageController extends AbstractController implements Observer
                 FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("friend.fxml"));
                 Node friendUi = fxmlLoader.load();
                 Controller controller = fxmlLoader.getController();
-                controller.setupController(new ControllerDTO(service, stage, connectedUserId, new UserDTO(user.getId(), user.getFirstName(), user.getLastName())));
+                controller.setupController(new ControllerDTO(service, stage, new UserDTO(connectedUserId), new FriendDTO(user.getId(), user.getFirstName(), user.getLastName()), FriendButtonType.ADD));
                 searchVBox.getChildren().add(friendUi);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -66,9 +70,22 @@ public class SearchPageController extends AbstractController implements Observer
     @Override
     public void update(Event e) {
         FriendRequestEvent friendRequestEvent = (FriendRequestEvent) e;
-        candidateFriendsOnSearchButtonPage.removeIf(user -> user.getId().equals(friendRequestEvent.getId()));
-        loadCandidateFriendsOnSearchButtonPage(candidateFriendsOnSearchButtonPage);
-        searchTextField.clear();
+        if(friendRequestEvent.getEventType() == EventType.CREATE_REQUEST) {
+            candidateFriendsOnSearchButtonPage.removeIf(user -> user.getId().equals(friendRequestEvent.getId()));
+            loadCandidateFriendsOnSearchButtonPage(candidateFriendsOnSearchButtonPage);
+            searchTextField.clear();
+        }
+        if(friendRequestEvent.getEventType() == EventType.DELETE_REQUEST){
+            Friend deletedFriend = friendRequestEvent.getDeletedFriend();
+            if(deletedFriend.getFirstFriend().equals(connectedUserId)){
+                candidateFriendsOnSearchButtonPage.add(service.findOneUser(deletedFriend.getSecondFriend()));
+            }
+            else if(deletedFriend.getSecondFriend().equals(connectedUserId)){
+                candidateFriendsOnSearchButtonPage.add(service.findOneUser(deletedFriend.getFirstFriend()));
+            }
+            loadCandidateFriendsOnSearchButtonPage(candidateFriendsOnSearchButtonPage);
+            searchTextField.clear();
+        }
     }
 
     @Override

@@ -1,11 +1,17 @@
 package repository.database;
 
 import domain.Friend;
+import domain.dto.FriendDTO;
+import domain.dto.UserDTO;
+import domain.exceptions.DatabaseConnectionException;
 
 import java.sql.*;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class FriendDBRepository extends AbstractDBRepository<Long, Friend> {
 
@@ -65,11 +71,44 @@ public class FriendDBRepository extends AbstractDBRepository<Long, Friend> {
 
     @Override
     protected PreparedStatement updateDatabase(Friend entity, Connection conn) throws SQLException {
-        String query = "UPDATE FRIENDS SET id_user_1 = ?, id_user_2 = ? WHERE id = ?";
+        String query = "UPDATE FRIENDS SET id_user_1 = ?, id_user_2 = ?, status = ?, friends_from = ? WHERE id = ?";
         PreparedStatement statement = conn.prepareStatement(query);
         statement.setLong(1, entity.getFirstFriend());
         statement.setLong(2, entity.getSecondFriend());
-        statement.setLong(3, entity.getId());
+        statement.setBoolean(3, entity.getStatus());
+        statement.setTimestamp(4, Timestamp.valueOf(entity.getFriendsFrom()));
+        statement.setLong(5, entity.getId());
         return statement;
+    }
+
+    public Iterable<FriendDTO> findUsersWithPendingFriendRequests(Long userId) {
+        String query = """
+                SELECT F.id, U.id, U.first_name, U.last_name, F.friends_from
+                FROM USERS U
+                INNER JOIN FRIENDS F ON U.id = F.id_user_1 AND F.id_user_2 = ?
+                WHERE F.status = false""";
+        Optional.ofNullable(userId).orElseThrow(() -> new IllegalArgumentException("Id cannot be null"));
+
+        try (Connection conn = DriverManager.getConnection(databaseURL, databaseUser, databasePassword)){
+            PreparedStatement statement = conn.prepareStatement(query);
+            statement.setLong(1, userId);
+            ResultSet resultSet = statement.executeQuery();
+            List<FriendDTO> lst = new ArrayList<>();
+            if (resultSet.next()) {
+                do {
+                    Long idFriendship = resultSet.getLong(1);
+                    Long idFriend = resultSet.getLong(2);
+                    String firstName = resultSet.getString("first_name");
+                    String lastName = resultSet.getString("last_name");
+                    Timestamp temp = resultSet.getTimestamp("friends_from");
+                    LocalDateTime friendsFrom = LocalDateTime.ofInstant(Instant.ofEpochMilli(temp.getTime()), ZoneOffset.UTC);
+                    lst.add(new FriendDTO(idFriendship, idFriend, firstName, lastName, friendsFrom));
+                } while (resultSet.next());
+            }
+            return lst;
+        }
+        catch (SQLException e) {
+            throw new DatabaseConnectionException();
+        }
     }
 }

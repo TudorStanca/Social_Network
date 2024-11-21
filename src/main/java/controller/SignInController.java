@@ -2,6 +2,7 @@ package controller;
 
 import domain.User;
 import domain.dto.ControllerDTO;
+import domain.dto.UserDTO;
 import domain.exceptions.MyException;
 import domain.exceptions.SetupControllerException;
 import javafx.event.ActionEvent;
@@ -40,9 +41,9 @@ public class SignInController extends AbstractController {
             Stage userInterfaceStage = initNewView(fxmlLoader, "Social Network");
 
             Controller controller = fxmlLoader.getController();
-            controller.setupController(new ControllerDTO(service, userInterfaceStage, user));
+            controller.setupController(new ControllerDTO(service, userInterfaceStage, new UserDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword())));
 
-            stage.close();
+            //stage.close();
             userInterfaceStage.show();
         }
         catch (MyException e) {
@@ -75,8 +76,8 @@ public class SignInController extends AbstractController {
         Optional.ofNullable(stage).orElseThrow(() -> new SetupControllerException("Stage is null in sign in controller"));
         String email = "", password = "";
         if(controllerDTO.isConnectedUser()){
-            email = controllerDTO.getConnectedUserEmail();
-            password = controllerDTO.getConnectedUserPassword();
+            email = controllerDTO.getConnectedUserDTOEmail();
+            password = controllerDTO.getConnectedUserDTOPassword();
         }
         setTextFields(email, password);
     }

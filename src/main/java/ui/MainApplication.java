@@ -5,6 +5,7 @@ import controller.Controller;
 import domain.Friend;
 import domain.User;
 import domain.dto.ControllerDTO;
+import domain.dto.UserDTO;
 import domain.validators.FriendValidator;
 import domain.validators.UserValidator;
 import domain.validators.Validator;
@@ -54,7 +55,7 @@ public class MainApplication extends Application {
         primaryStage.setTitle("Sign In");
 
         Controller controller = fxmlLoader.getController();
-        controller.setupController(new ControllerDTO(service, primaryStage, new User(null, null, "john.doe@gmail.com", "1234")));
+        controller.setupController(new ControllerDTO(service, primaryStage, new UserDTO("john.doe@gmail.com", "1234")));
     }
 
     public static void main(String[] args) {

@@ -11,45 +11,29 @@ public class ControllerDTO {
 
     private Service service = null;
     private Stage stage = null;
-    private User connectedUser = null;
-    private Long connectedUserId = null;
-    private UserDTO friendDTO = null;
+    private UserDTO connectedUserDTO = null;
+    private FriendDTO friendDTO = null;
     private FriendButtonType friendButtonType = null;
 
-    public ControllerDTO(Service service, Stage stage, User connectedUser, UserDTO friendDTO, FriendButtonType friendButtonType) {
+    public ControllerDTO(Service service, Stage stage, UserDTO connectedUserDTO, FriendDTO friendDTO, FriendButtonType friendButtonType) {
         this.service = service;
         this.stage = stage;
-        this.connectedUser = connectedUser;
-        connectedUserId = connectedUser.getId();
+        this.connectedUserDTO = connectedUserDTO;
+        this.friendDTO = friendDTO;
         this.friendButtonType = friendButtonType;
     }
 
-    public ControllerDTO(Service service, Stage stage, User connectedUser, UserDTO friendDTO) {
+    public ControllerDTO(Service service, Stage stage, UserDTO connectedUserDTO, FriendDTO friendDTO) {
         this.service = service;
         this.stage = stage;
-        this.connectedUser = connectedUser;
-        connectedUserId = connectedUser.getId();
+        this.connectedUserDTO = connectedUserDTO;
         this.friendDTO = friendDTO;
     }
 
-    public ControllerDTO(Service service, Stage stage, Long connectedUserId, UserDTO friendDTO) {
+    public ControllerDTO(Service service, Stage stage, UserDTO connectedUserDTO) {
         this.service = service;
         this.stage = stage;
-        this.connectedUserId = connectedUserId;
-        this.friendDTO = friendDTO;
-    }
-
-    public ControllerDTO(Service service, Stage stage, User connectedUser) {
-        this.service = service;
-        this.stage = stage;
-        this.connectedUser = connectedUser;
-        connectedUserId = connectedUser.getId();
-    }
-
-    public ControllerDTO(Service service, Stage stage, Long connectedUserId) {
-        this.service = service;
-        this.stage = stage;
-        this.connectedUserId = connectedUserId;
+        this.connectedUserDTO = connectedUserDTO;
     }
 
     public ControllerDTO(Service service, Stage stage) {
@@ -66,31 +50,35 @@ public class ControllerDTO {
     }
 
     public boolean isConnectedUser() {
-        return connectedUser != null;
+        return connectedUserDTO != null;
     }
 
     public Long getConnectedUserId() {
-        return connectedUserId;
+        return connectedUserDTO.getId();
     }
 
-    public String getConnectedUserFirstName() {
-        return connectedUser.getFirstName();
+    public String getConnectedUserDTOFirstName() {
+        return connectedUserDTO.getFirstName();
     }
 
-    public String getConnectedUserLastName() {
-        return connectedUser.getLastName();
+    public String getConnectedUserDTOLastName() {
+        return connectedUserDTO.getLastName();
     }
 
-    public String getConnectedUserEmail() {
-        return connectedUser.getEmail();
+    public String getConnectedUserDTOEmail() {
+        return connectedUserDTO.getEmail();
     }
 
-    public String getConnectedUserPassword() {
-        return connectedUser.getPassword();
+    public String getConnectedUserDTOPassword() {
+        return connectedUserDTO.getPassword();
     }
 
-    public Long getFriendDTOId() {
-        return friendDTO.getId();
+    public Long getFriendDTOIdFriendship(){
+        return friendDTO.getIdFriendship();
+    }
+
+    public Long getFriendDTOIdFriend() {
+        return friendDTO.getIdFriend();
     }
 
     public String getFriendDTOFirstName() {

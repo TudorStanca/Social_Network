@@ -2,6 +2,7 @@ package controller;
 
 import domain.User;
 import domain.dto.ControllerDTO;
+import domain.dto.UserDTO;
 import domain.exceptions.MyException;
 import domain.exceptions.SetupControllerException;
 import javafx.event.ActionEvent;
@@ -42,7 +43,7 @@ public class SignUpController extends AbstractController {
             changeRoot(fxmlLoader);
 
             Controller controller = fxmlLoader.getController();
-            controller.setupController(new ControllerDTO(service, stage, new User(null, null, email, password)));
+            controller.setupController(new ControllerDTO(service, stage, new UserDTO(email, password)));
         } catch (MyException e) {
             MessageAlert.showError(stage, e.getMessage());
         }

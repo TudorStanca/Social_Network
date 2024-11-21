@@ -3,6 +3,7 @@ package controller;
 import controller.mainUiPages.ObserverController;
 import domain.User;
 import domain.dto.ControllerDTO;
+import domain.dto.UserDTO;
 import domain.exceptions.SetupControllerException;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -69,7 +70,7 @@ public class UserInterfaceController extends AbstractController {
             Pane homeBorderPane = fxmlLoader.load();
 
             Controller controller = fxmlLoader.getController();
-            controller.setupController(new ControllerDTO(service, stage, connectedUser));
+            controller.setupController(new ControllerDTO(service, stage, new UserDTO(connectedUser.getId())));
             currentController = (ObserverController) controller;
 
             changeBorderPane(homeBorderPane);
@@ -86,7 +87,7 @@ public class UserInterfaceController extends AbstractController {
             Pane searchBorderPane = fxmlLoader.load();
 
             Controller controller = fxmlLoader.getController();
-            controller.setupController(new ControllerDTO(service, stage, connectedUser.getId()));
+            controller.setupController(new ControllerDTO(service, stage, new UserDTO(connectedUser.getId())));
             currentController = (ObserverController) controller;
 
             changeBorderPane(searchBorderPane);
@@ -130,10 +131,10 @@ public class UserInterfaceController extends AbstractController {
         Optional.ofNullable(stage).orElseThrow(() -> new SetupControllerException("Stage is null in user interface controller"));
 
         Long id = controllerDTO.getConnectedUserId();
-        String firstName = controllerDTO.getConnectedUserFirstName();
-        String lastName = controllerDTO.getConnectedUserLastName();
-        String email = controllerDTO.getConnectedUserEmail();
-        String password = controllerDTO.getConnectedUserPassword();
+        String firstName = controllerDTO.getConnectedUserDTOFirstName();
+        String lastName = controllerDTO.getConnectedUserDTOLastName();
+        String email = controllerDTO.getConnectedUserDTOEmail();
+        String password = controllerDTO.getConnectedUserDTOPassword();
         Optional.ofNullable(id).orElseThrow(() -> new SetupControllerException("User id is null in user interface controller"));
         Optional.ofNullable(firstName).orElseThrow(() -> new SetupControllerException("User first name is null in user interface controller"));
         Optional.ofNullable(lastName).orElseThrow(() -> new SetupControllerException("User last name is null in user interface controller"));

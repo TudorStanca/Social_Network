@@ -12,10 +12,20 @@
             <Image url="@../images/user-icon.png" />
          </image>
       </ImageView>
-      <Label fx:id="friendName" text="FIRST NAME LAST NAME" />
-      <Button mnemonicParsing="false" onAction="#handleAddButton" text="Add" />
+      <VBox fx:id="labelVBox" alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="176.0">
+         <children>
+            <Label fx:id="friendNameLabel" text="FIRST NAME LAST NAME" />
+            <Label fx:id="friendsFromLabel" text="FRIENDS FROM" />
+         </children>
+      </VBox>
+      <VBox fx:id="buttonVBox" alignment="CENTER" prefHeight="100.0" prefWidth="107.0" spacing="10.0">
+         <children>
+            <Button fx:id="topButton" mnemonicParsing="false" onAction="#handleAddButton" prefWidth="60.0" text="Accept" />
+            <Button fx:id="declineButton" mnemonicParsing="false" prefWidth="60.0" text="Decline" />
+         </children>
+      </VBox>
    </children>
    <padding>
-      <Insets left="20.0" />
+      <Insets left="20.0" right="20.0" />
    </padding>
 </HBox>
