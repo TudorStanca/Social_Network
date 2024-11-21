@@ -1,6 +1,7 @@
 package repository.database;
 
 import domain.Friend;
+import domain.User;
 import domain.dto.FriendDTO;
 import domain.dto.UserDTO;
 import domain.exceptions.DatabaseConnectionException;
@@ -81,7 +82,39 @@ public class FriendDBRepository extends AbstractDBRepository<Long, Friend> {
         return statement;
     }
 
-    public Iterable<FriendDTO> findUsersWithPendingFriendRequests(Long userId) {
+    public Iterable<FriendDTO> findCandidateFriends(Long id) {
+        String query = """
+                SELECT U.id, U.first_name, U.last_name
+                FROM USERS U
+                WHERE U.ID NOT IN (SELECT U.ID
+                    FROM USERS U
+                    INNER JOIN FRIENDS F on U.id = F.id_user_1 OR U.id = F.id_user_2
+                    WHERE (F.id_user_1 = ? OR F.id_user_2 = ?) AND U.id != ?) AND U.ID != ?""";
+        Optional.ofNullable(id).orElseThrow(() -> new IllegalArgumentException("Id cannot be null"));
+
+        try (Connection conn = DriverManager.getConnection(databaseURL, databaseUser, databasePassword)) {
+            PreparedStatement statement = conn.prepareStatement(query);
+            statement.setLong(1, id);
+            statement.setLong(2, id);
+            statement.setLong(3, id);
+            statement.setLong(4, id);
+            ResultSet resultSet = statement.executeQuery();
+            List<FriendDTO> lst = new ArrayList<>();
+            if (resultSet.next()) {
+                do {
+                    Long idFriend = resultSet.getLong("id");
+                    String firstName = resultSet.getString("first_name");
+                    String lastName = resultSet.getString("last_name");
+                    lst.add(new FriendDTO(idFriend, firstName, lastName));
+                } while (resultSet.next());
+            }
+            return lst;
+        } catch (SQLException e) {
+            throw new DatabaseConnectionException();
+        }
+    }
+
+    public Iterable<FriendDTO> findPendingFriendRequests(Long userId) {
         String query = """
                 SELECT F.id, U.id, U.first_name, U.last_name, F.friends_from
                 FROM USERS U
@@ -92,6 +125,39 @@ public class FriendDBRepository extends AbstractDBRepository<Long, Friend> {
         try (Connection conn = DriverManager.getConnection(databaseURL, databaseUser, databasePassword)){
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setLong(1, userId);
+            ResultSet resultSet = statement.executeQuery();
+            List<FriendDTO> lst = new ArrayList<>();
+            if (resultSet.next()) {
+                do {
+                    Long idFriendship = resultSet.getLong(1);
+                    Long idFriend = resultSet.getLong(2);
+                    String firstName = resultSet.getString("first_name");
+                    String lastName = resultSet.getString("last_name");
+                    Timestamp temp = resultSet.getTimestamp("friends_from");
+                    LocalDateTime friendsFrom = LocalDateTime.ofInstant(Instant.ofEpochMilli(temp.getTime()), ZoneOffset.UTC);
+                    lst.add(new FriendDTO(idFriendship, idFriend, firstName, lastName, friendsFrom));
+                } while (resultSet.next());
+            }
+            return lst;
+        }
+        catch (SQLException e) {
+            throw new DatabaseConnectionException();
+        }
+    }
+
+    public Iterable<FriendDTO> findFriends(Long userId) {
+        String query = """
+                SELECT F.id, U.id, U.first_name, U.last_name, F.friends_from
+                FROM USERS U
+                INNER JOIN FRIENDS F on U.id = F.id_user_1 OR U.id = F.id_user_2
+                WHERE (F.id_user_1 = ? OR F.id_user_2 = ?) AND U.id != ? AND F.status = TRUE""";
+        Optional.ofNullable(userId).orElseThrow(() -> new IllegalArgumentException("Id cannot be null"));
+
+        try (Connection conn = DriverManager.getConnection(databaseURL, databaseUser, databasePassword)){
+            PreparedStatement statement = conn.prepareStatement(query);
+            statement.setLong(1, userId);
+            statement.setLong(2, userId);
+            statement.setLong(3, userId);
             ResultSet resultSet = statement.executeQuery();
             List<FriendDTO> lst = new ArrayList<>();
             if (resultSet.next()) {

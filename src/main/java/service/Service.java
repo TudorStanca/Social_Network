@@ -4,7 +4,6 @@ import domain.Friend;
 import domain.Graph;
 import domain.User;
 import domain.dto.FriendDTO;
-import domain.dto.UserDTO;
 import domain.exceptions.IdNotFoundException;
 import domain.exceptions.ObjectAlreadyInRepositoryException;
 import domain.exceptions.UserNotFoundInDatabase;
@@ -13,10 +12,9 @@ import domain.validators.Validator;
 import repository.Repository;
 import repository.database.FriendDBRepository;
 import repository.database.UserDBRepository;
-import utils.Constants;
 import utils.events.Event;
 import utils.events.EventType;
-import utils.events.FriendRequestEvent;
+import utils.events.FriendChangeEvent;
 import utils.observer.Observable;
 import utils.observer.Observer;
 
@@ -124,12 +122,16 @@ public class Service implements Observable<Event> {
         return user.get();
     }
 
-    public Iterable<User> findUserCandidateFriends(Long userId){
-        return ((UserDBRepository) repoUser).findUserCandidateFriends(userId);
+    public Iterable<FriendDTO> findUserCandidateFriends(Long userId){
+        return ((FriendDBRepository) repoFriend).findCandidateFriends(userId);
     }
 
     public Iterable<FriendDTO> findPendingRecievingFriendRequests(Long userId){
-        return ((FriendDBRepository) repoFriend).findUsersWithPendingFriendRequests(userId);
+        return ((FriendDBRepository) repoFriend).findPendingFriendRequests(userId);
+    }
+
+    public Iterable<FriendDTO> findUserFriends(Long userId){
+        return ((FriendDBRepository) repoFriend).findFriends(userId);
     }
 
     /**
@@ -206,7 +208,7 @@ public class Service implements Observable<Event> {
             throw new ObjectAlreadyInRepositoryException(newFriend);
         }
 
-        notifyObservers(new FriendRequestEvent(EventType.CREATE_REQUEST));
+        notifyObservers(new FriendChangeEvent(EventType.CREATE_REQUEST));
 
         return newFriend;
     }
@@ -225,7 +227,7 @@ public class Service implements Observable<Event> {
             throw new IdNotFoundException(id);
         }
 
-        notifyObservers(new FriendRequestEvent(EventType.DELETE_REQUEST));
+        notifyObservers(new FriendChangeEvent(EventType.DELETE_REQUEST));
 
         return friend.get();
     }
@@ -252,7 +254,7 @@ public class Service implements Observable<Event> {
             throw new IdNotFoundException(id);
         }
 
-        notifyObservers(new FriendRequestEvent(EventType.ACCEPT_REQUEST));
+        notifyObservers(new FriendChangeEvent(EventType.ACCEPT_REQUEST));
 
         return newFriend;
     }

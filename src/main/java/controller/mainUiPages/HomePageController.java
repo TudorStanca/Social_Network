@@ -2,7 +2,6 @@ package controller.mainUiPages;
 
 import controller.AbstractController;
 import controller.Controller;
-import controller.FriendController;
 import domain.User;
 import domain.dto.ControllerDTO;
 import domain.dto.FriendDTO;
@@ -20,7 +19,7 @@ import ui.MainApplication;
 import utils.FriendButtonType;
 import utils.events.Event;
 import utils.events.EventType;
-import utils.events.FriendRequestEvent;
+import utils.events.FriendChangeEvent;
 
 import java.io.IOException;
 import java.util.List;
@@ -32,6 +31,7 @@ public class HomePageController extends AbstractController implements ObserverCo
     private static final double borderPaneWidth = width * 0.80;
 
     private ObservableList<FriendDTO> friendRequestsList = FXCollections.observableArrayList();
+    private ObservableList<FriendDTO> friendsList = FXCollections.observableArrayList();
     private Long connectedUserId;
 
     @FXML
@@ -51,28 +51,44 @@ public class HomePageController extends AbstractController implements ObserverCo
         rightScrollPane.setPrefHeight(height);
 
         friendRequestsList.addListener((ListChangeListener<FriendDTO>) change -> {
-            innerRightVBox.getChildren().clear();
-            for (FriendDTO friend : friendRequestsList) {
-                try {
-                    FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("friend.fxml"));
-                    Node friendUi = fxmlLoader.load();
-                    Controller controller = fxmlLoader.getController();
-                    controller.setupController(new ControllerDTO(service, stage, new UserDTO(connectedUserId), friend, FriendButtonType.ACCEPT));
-                    innerRightVBox.getChildren().add(friendUi);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            loadFriends(friendRequestsList, innerRightVBox, FriendButtonType.ACCEPT);
         });
+
+        friendsList.addListener((ListChangeListener<FriendDTO>) change -> {
+            loadFriends(friendsList, innerLeftVBox, FriendButtonType.DELETE);
+        });
+    }
+
+    private void loadFriends(List<FriendDTO> lst, VBox pane, FriendButtonType friendButtonType) {
+        pane.getChildren().clear();
+        for (FriendDTO friend : lst) {
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("friend.fxml"));
+                Node friendUi = fxmlLoader.load();
+                Controller controller = fxmlLoader.getController();
+                controller.setupController(new ControllerDTO(service, stage, new UserDTO(connectedUserId), friend, friendButtonType));
+                pane.getChildren().add(friendUi);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void setFriendRequestsList(){
         friendRequestsList.setAll((StreamSupport.stream(service.findPendingRecievingFriendRequests(connectedUserId).spliterator(), false).toList()));
     }
 
+    private void setFriendsList(){
+        friendsList.setAll((StreamSupport.stream(service.findUserFriends(connectedUserId).spliterator(), false).toList()));
+    }
+
     @Override
     public void update(Event e) {
-       setFriendRequestsList();
+        FriendChangeEvent event = (FriendChangeEvent) e;
+        if(event.getEventType() == EventType.ACCEPT_REQUEST || event.getEventType() == EventType.DELETE_REQUEST){
+            setFriendsList();
+        }
+        setFriendRequestsList();
     }
 
     @Override
@@ -88,5 +104,6 @@ public class HomePageController extends AbstractController implements ObserverCo
         Optional.ofNullable(connectedUserId).orElseThrow(() -> new SetupControllerException("ID is null in search page controller"));
 
         setFriendRequestsList();
+        setFriendsList();
     }
 }

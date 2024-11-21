@@ -2,6 +2,7 @@ package controller.mainUiPages;
 
 import controller.AbstractController;
 import controller.Controller;
+import domain.Friend;
 import domain.User;
 import domain.dto.ControllerDTO;
 import domain.dto.FriendDTO;
@@ -19,6 +20,8 @@ import javafx.scene.layout.VBox;
 import ui.MainApplication;
 import utils.FriendButtonType;
 import utils.events.Event;
+import utils.events.EventType;
+import utils.events.FriendChangeEvent;
 
 import java.io.IOException;
 import java.util.List;
@@ -28,7 +31,7 @@ import java.util.stream.StreamSupport;
 
 public class SearchPageController extends AbstractController implements ObserverController {
 
-    private ObservableList<User> candidateFriendsList = FXCollections.observableArrayList();
+    private ObservableList<FriendDTO> candidateFriendsList = FXCollections.observableArrayList();
     private Long connectedUserId;
 
     @FXML
@@ -43,8 +46,8 @@ public class SearchPageController extends AbstractController implements Observer
     @FXML
     public void initialize() {
         searchTextField.textProperty().addListener(o -> handleFilter());
-        candidateFriendsList.addListener((ListChangeListener<User>) change -> {
-            loadCandidateFriendsOnSearchButtonPage(candidateFriendsList);
+        candidateFriendsList.addListener((ListChangeListener<FriendDTO>) change -> {
+            loadCandidateFriends(candidateFriendsList);
         });
     }
 
@@ -53,18 +56,18 @@ public class SearchPageController extends AbstractController implements Observer
     }
 
     private void handleFilter(){
-        Predicate<User> p1 = user -> (user.getFirstName() + " " + user.getLastName()).startsWith(searchTextField.getText());
-        loadCandidateFriendsOnSearchButtonPage(candidateFriendsList.filtered(p1));
+        Predicate<FriendDTO> p1 = friend -> (friend.getFirstName() + " " + friend.getLastName()).startsWith(searchTextField.getText());
+        loadCandidateFriends(candidateFriendsList.filtered(p1));
     }
 
-    private void loadCandidateFriendsOnSearchButtonPage(List<User> lst) {
+    private void loadCandidateFriends(List<FriendDTO> lst) {
         searchVBox.getChildren().clear();
-        for (User user : lst) {
+        for (FriendDTO friend : lst) {
             try {
                 FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("friend.fxml"));
                 Node friendUi = fxmlLoader.load();
                 Controller controller = fxmlLoader.getController();
-                controller.setupController(new ControllerDTO(service, stage, new UserDTO(connectedUserId), new FriendDTO(user.getId(), user.getFirstName(), user.getLastName()), FriendButtonType.ADD));
+                controller.setupController(new ControllerDTO(service, stage, new UserDTO(connectedUserId), friend, FriendButtonType.ADD));
                 searchVBox.getChildren().add(friendUi);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -74,7 +77,11 @@ public class SearchPageController extends AbstractController implements Observer
 
     @Override
     public void update(Event e) {
-        setCandidateFriendsList();
+        FriendChangeEvent event = (FriendChangeEvent) e;
+        if(event.getEventType() == EventType.CREATE_REQUEST || event.getEventType() == EventType.DELETE_REQUEST){
+            setCandidateFriendsList();
+            searchTextField.clear();
+        }
     }
 
     @Override

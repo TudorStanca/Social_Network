@@ -10,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import utils.Constants;
 import utils.FriendButtonType;
 
 import java.time.LocalDateTime;
@@ -59,6 +60,16 @@ public class FriendController extends AbstractController {
         }
     }
 
+    @FXML
+    private void handleDeleteButton(ActionEvent event) {
+        try{
+            service.deleteFriend(friendDTO.getIdFriendship());
+        }
+        catch (MyException e){
+            MessageAlert.showError(stage, e.getMessage());
+        }
+    }
+
     @Override
     public void setupController(ControllerDTO controllerDTO) {
         service = controllerDTO.getService();
@@ -93,9 +104,13 @@ public class FriendController extends AbstractController {
                 topButton.setOnAction(this::handleAcceptButton);
                 declineButton.setText("Decline");
                 declineButton.setOnAction(this::handleDeclineButton);
+                friendsFromLabel.setText(friendDTO.getDate().format(Constants.DATE_FORMATTER));
             }
             case DELETE -> {
                 buttonVBox.getChildren().remove(declineButton);
+                topButton.setText("Delete");
+                topButton.setOnAction(this::handleDeleteButton);
+                friendsFromLabel.setText(friendDTO.getDate().format(Constants.DATE_FORMATTER));
             }
         }
     }
