@@ -5,9 +5,9 @@ import domain.User;
 
 public class FriendRequestEvent implements Event {
 
-    private Long id;
+    private Long id = null;
     EventType eventType;
-    private Friend deletedFriend;
+    private Friend deletedFriend = null;
 
     public FriendRequestEvent(Long id, EventType eventType) {
         this.id = id;
@@ -17,6 +17,10 @@ public class FriendRequestEvent implements Event {
     public FriendRequestEvent(Long id, Friend deletedFriend, EventType eventType) {
         this.id = id;
         this.deletedFriend = deletedFriend;
+        this.eventType = eventType;
+    }
+
+    public FriendRequestEvent(EventType eventType) {
         this.eventType = eventType;
     }
 

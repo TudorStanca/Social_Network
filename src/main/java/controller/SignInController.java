@@ -43,7 +43,7 @@ public class SignInController extends AbstractController {
             Controller controller = fxmlLoader.getController();
             controller.setupController(new ControllerDTO(service, userInterfaceStage, new UserDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword())));
 
-            //stage.close();
+            stage.close();
             userInterfaceStage.show();
         }
         catch (MyException e) {

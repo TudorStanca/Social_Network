@@ -206,7 +206,7 @@ public class Service implements Observable<Event> {
             throw new ObjectAlreadyInRepositoryException(newFriend);
         }
 
-        notifyObservers(new FriendRequestEvent(id2, EventType.CREATE_REQUEST));
+        notifyObservers(new FriendRequestEvent(EventType.CREATE_REQUEST));
 
         return newFriend;
     }
@@ -225,7 +225,7 @@ public class Service implements Observable<Event> {
             throw new IdNotFoundException(id);
         }
 
-        notifyObservers(new FriendRequestEvent(id, friend.get(), EventType.DELETE_REQUEST));
+        notifyObservers(new FriendRequestEvent(EventType.DELETE_REQUEST));
 
         return friend.get();
     }
@@ -252,7 +252,7 @@ public class Service implements Observable<Event> {
             throw new IdNotFoundException(id);
         }
 
-        notifyObservers(new FriendRequestEvent(id, EventType.ACCEPT_REQUEST));
+        notifyObservers(new FriendRequestEvent(EventType.ACCEPT_REQUEST));
 
         return newFriend;
     }

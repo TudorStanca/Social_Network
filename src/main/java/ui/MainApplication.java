@@ -13,6 +13,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import repository.Repository;
 import repository.database.FriendDBRepository;
@@ -28,7 +29,7 @@ public class MainApplication extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
 
-        String url = "jdbc:postgresql://192.168.0.206:5432/SOCIAL_NETWORK_MAP";
+        String url = "jdbc:postgresql://localhost:5432/SOCIAL_NETWORK_MAP";
         String user = "postgres";
         String password = "1234";
 

@@ -2,13 +2,13 @@ package controller.mainUiPages;
 
 import controller.AbstractController;
 import controller.Controller;
-import domain.Friend;
 import domain.User;
 import domain.dto.ControllerDTO;
 import domain.dto.FriendDTO;
 import domain.dto.UserDTO;
 import domain.exceptions.SetupControllerException;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -19,8 +19,6 @@ import javafx.scene.layout.VBox;
 import ui.MainApplication;
 import utils.FriendButtonType;
 import utils.events.Event;
-import utils.events.EventType;
-import utils.events.FriendRequestEvent;
 
 import java.io.IOException;
 import java.util.List;
@@ -30,7 +28,7 @@ import java.util.stream.StreamSupport;
 
 public class SearchPageController extends AbstractController implements ObserverController {
 
-    private ObservableList<User> candidateFriendsOnSearchButtonPage = FXCollections.observableArrayList();
+    private ObservableList<User> candidateFriendsList = FXCollections.observableArrayList();
     private Long connectedUserId;
 
     @FXML
@@ -45,11 +43,18 @@ public class SearchPageController extends AbstractController implements Observer
     @FXML
     public void initialize() {
         searchTextField.textProperty().addListener(o -> handleFilter());
+        candidateFriendsList.addListener((ListChangeListener<User>) change -> {
+            loadCandidateFriendsOnSearchButtonPage(candidateFriendsList);
+        });
+    }
+
+    private void setCandidateFriendsList(){
+        candidateFriendsList.setAll((StreamSupport.stream(service.findUserCandidateFriends(connectedUserId).spliterator(), false).toList()));
     }
 
     private void handleFilter(){
         Predicate<User> p1 = user -> (user.getFirstName() + " " + user.getLastName()).startsWith(searchTextField.getText());
-        loadCandidateFriendsOnSearchButtonPage(candidateFriendsOnSearchButtonPage.filtered(p1));
+        loadCandidateFriendsOnSearchButtonPage(candidateFriendsList.filtered(p1));
     }
 
     private void loadCandidateFriendsOnSearchButtonPage(List<User> lst) {
@@ -69,23 +74,7 @@ public class SearchPageController extends AbstractController implements Observer
 
     @Override
     public void update(Event e) {
-        FriendRequestEvent friendRequestEvent = (FriendRequestEvent) e;
-        if(friendRequestEvent.getEventType() == EventType.CREATE_REQUEST) {
-            candidateFriendsOnSearchButtonPage.removeIf(user -> user.getId().equals(friendRequestEvent.getId()));
-            loadCandidateFriendsOnSearchButtonPage(candidateFriendsOnSearchButtonPage);
-            searchTextField.clear();
-        }
-        if(friendRequestEvent.getEventType() == EventType.DELETE_REQUEST){
-            Friend deletedFriend = friendRequestEvent.getDeletedFriend();
-            if(deletedFriend.getFirstFriend().equals(connectedUserId)){
-                candidateFriendsOnSearchButtonPage.add(service.findOneUser(deletedFriend.getSecondFriend()));
-            }
-            else if(deletedFriend.getSecondFriend().equals(connectedUserId)){
-                candidateFriendsOnSearchButtonPage.add(service.findOneUser(deletedFriend.getFirstFriend()));
-            }
-            loadCandidateFriendsOnSearchButtonPage(candidateFriendsOnSearchButtonPage);
-            searchTextField.clear();
-        }
+        setCandidateFriendsList();
     }
 
     @Override
@@ -100,7 +89,6 @@ public class SearchPageController extends AbstractController implements Observer
         connectedUserId= controllerDTO.getConnectedUserId();
         Optional.ofNullable(connectedUserId).orElseThrow(() -> new SetupControllerException("ID is null in search page controller"));
 
-        candidateFriendsOnSearchButtonPage.setAll((StreamSupport.stream(service.findUserCandidateFriends(connectedUserId).spliterator(), false).toList()));
-        loadCandidateFriendsOnSearchButtonPage(candidateFriendsOnSearchButtonPage);
+        setCandidateFriendsList();
     }
 }

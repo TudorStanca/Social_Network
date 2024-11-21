@@ -9,6 +9,7 @@ import domain.dto.FriendDTO;
 import domain.dto.UserDTO;
 import domain.exceptions.SetupControllerException;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -48,37 +49,30 @@ public class HomePageController extends AbstractController implements ObserverCo
         rightVBox.setPrefWidth(borderPaneWidth * 0.50);
         leftScrollPane.setPrefHeight(height);
         rightScrollPane.setPrefHeight(height);
+
+        friendRequestsList.addListener((ListChangeListener<FriendDTO>) change -> {
+            innerRightVBox.getChildren().clear();
+            for (FriendDTO friend : friendRequestsList) {
+                try {
+                    FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("friend.fxml"));
+                    Node friendUi = fxmlLoader.load();
+                    Controller controller = fxmlLoader.getController();
+                    controller.setupController(new ControllerDTO(service, stage, new UserDTO(connectedUserId), friend, FriendButtonType.ACCEPT));
+                    innerRightVBox.getChildren().add(friendUi);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
-    private void loadFriendRequstsList(List<FriendDTO> lst) {
-        innerRightVBox.getChildren().clear();
-        for (FriendDTO friend : lst) {
-            try {
-                FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("friend.fxml"));
-                Node friendUi = fxmlLoader.load();
-                Controller controller = fxmlLoader.getController();
-                controller.setupController(new ControllerDTO(service, stage, new UserDTO(connectedUserId), friend, FriendButtonType.ACCEPT));
-                innerRightVBox.getChildren().add(friendUi);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+    private void setFriendRequestsList(){
+        friendRequestsList.setAll((StreamSupport.stream(service.findPendingRecievingFriendRequests(connectedUserId).spliterator(), false).toList()));
     }
 
     @Override
     public void update(Event e) {
-        FriendRequestEvent event = (FriendRequestEvent) e;
-        if(event.getEventType() == EventType.CREATE_REQUEST){
-
-        }
-        else if(event.getEventType() == EventType.ACCEPT_REQUEST){
-            friendRequestsList.removeIf(friend -> friend.getIdFriendship().equals(event.getId()));
-            loadFriendRequstsList(friendRequestsList);
-        }
-        else if (event.getEventType() == EventType.DELETE_REQUEST){
-            friendRequestsList.removeIf(friend -> friend.getIdFriendship().equals(event.getId()));
-            loadFriendRequstsList(friendRequestsList);
-        }
+       setFriendRequestsList();
     }
 
     @Override
@@ -93,7 +87,6 @@ public class HomePageController extends AbstractController implements ObserverCo
         connectedUserId = controllerDTO.getConnectedUserId();
         Optional.ofNullable(connectedUserId).orElseThrow(() -> new SetupControllerException("ID is null in search page controller"));
 
-        friendRequestsList.setAll((StreamSupport.stream(service.findPendingRecievingFriendRequests(connectedUserId).spliterator(), false).toList()));
-        loadFriendRequstsList(friendRequestsList);
+        setFriendRequestsList();
     }
 }
