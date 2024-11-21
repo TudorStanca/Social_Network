@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 public class SearchPageController extends AbstractController implements ObserverController {
@@ -46,7 +45,7 @@ public class SearchPageController extends AbstractController implements Observer
 
     private void handleFilter(){
         Predicate<User> p1 = user -> (user.getFirstName() + " " + user.getLastName()).startsWith(searchTextField.getText());
-        loadCandidateFriendsOnSearchButtonPage(candidateFriendsOnSearchButtonPage.stream().filter(p1).collect(Collectors.toList()));
+        loadCandidateFriendsOnSearchButtonPage(candidateFriendsOnSearchButtonPage.filtered(p1));
     }
 
     private void loadCandidateFriendsOnSearchButtonPage(List<User> lst) {
@@ -69,6 +68,7 @@ public class SearchPageController extends AbstractController implements Observer
         FriendRequestEvent friendRequestEvent = (FriendRequestEvent) e;
         candidateFriendsOnSearchButtonPage.removeIf(user -> user.getId().equals(friendRequestEvent.getId()));
         loadCandidateFriendsOnSearchButtonPage(candidateFriendsOnSearchButtonPage);
+        searchTextField.clear();
     }
 
     @Override
@@ -83,7 +83,7 @@ public class SearchPageController extends AbstractController implements Observer
         connectedUserId= controllerDTO.getConnectedUserId();
         Optional.ofNullable(connectedUserId).orElseThrow(() -> new SetupControllerException("ID is null in search page controller"));
 
-        candidateFriendsOnSearchButtonPage.setAll(StreamSupport.stream(service.findUserCandidateFriends(connectedUserId).spliterator(), false).toList());
+        candidateFriendsOnSearchButtonPage.setAll((StreamSupport.stream(service.findUserCandidateFriends(connectedUserId).spliterator(), false).toList()));
         loadCandidateFriendsOnSearchButtonPage(candidateFriendsOnSearchButtonPage);
     }
 }

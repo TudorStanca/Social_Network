@@ -20,8 +20,6 @@ import java.util.Optional;
 
 public class UserInterfaceController extends AbstractController {
 
-    private static final double width = Screen.getPrimary().getBounds().getWidth() * 0.75;
-    private static final double height = Screen.getPrimary().getBounds().getHeight() * 0.75;
     private ObserverController currentController = null;
     private User connectedUser;
 
