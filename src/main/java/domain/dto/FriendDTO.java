@@ -1,7 +1,5 @@
 package domain.dto;
 
-import domain.User;
-
 import java.time.LocalDateTime;
 
 public class FriendDTO {
@@ -26,7 +24,7 @@ public class FriendDTO {
         this.lastName = lastName;
     }
 
-    public Long getIdFriendship(){
+    public Long getIdFriendship() {
         return idFriendship;
     }
 

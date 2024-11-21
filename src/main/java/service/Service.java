@@ -109,28 +109,28 @@ public class Service implements Observable<Event> {
         }
     }
 
-    public User findOneUser(Long idUser){
+    public User findOneUser(Long idUser) {
         Optional<User> user = repoUser.findOne(idUser);
         return user.orElse(null);
     }
 
     public User findUserByEmailPassword(String email, String password) {
         Optional<User> user = ((UserDBRepository) repoUser).findOne(email, password);
-        if(user.isEmpty()) {
+        if (user.isEmpty()) {
             throw new UserNotFoundInDatabase(email);
         }
         return user.get();
     }
 
-    public Iterable<FriendDTO> findUserCandidateFriends(Long userId){
+    public Iterable<FriendDTO> findUserCandidateFriends(Long userId) {
         return ((FriendDBRepository) repoFriend).findCandidateFriends(userId);
     }
 
-    public Iterable<FriendDTO> findPendingRecievingFriendRequests(Long userId){
+    public Iterable<FriendDTO> findPendingRecievingFriendRequests(Long userId) {
         return ((FriendDBRepository) repoFriend).findPendingFriendRequests(userId);
     }
 
-    public Iterable<FriendDTO> findUserFriends(Long userId){
+    public Iterable<FriendDTO> findUserFriends(Long userId) {
         return ((FriendDBRepository) repoFriend).findFriends(userId);
     }
 
@@ -235,7 +235,7 @@ public class Service implements Observable<Event> {
     /**
      * Updates a friendship from the repository
      *
-     * @param id          The id of the friendship that is being updated
+     * @param id The id of the friendship that is being updated
      * @return The new Friend
      * @throws IdNotFoundException                if the idNewFriend doesn't have a corresponding user
      * @throws ObjectAlreadyInRepositoryException if the new friendship already exists

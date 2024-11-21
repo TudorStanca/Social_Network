@@ -46,8 +46,7 @@ public class SignUpController extends AbstractController {
             controller.setupController(new ControllerDTO(service, stage, new UserDTO(email, password)));
         } catch (MyException e) {
             MessageAlert.showError(stage, e.getMessage());
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -60,8 +59,7 @@ public class SignUpController extends AbstractController {
 
             Controller controller = fxmlLoader.getController();
             controller.setupController(new ControllerDTO(service, stage));
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

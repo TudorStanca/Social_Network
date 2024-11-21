@@ -1,16 +1,15 @@
 package repository.database;
 
 import domain.User;
-import domain.dto.UserDTO;
 import domain.exceptions.DatabaseConnectionException;
 
-import java.sql.*;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Optional;
+import java.sql.DriverManager;
 
 public class UserDBRepository extends AbstractDBRepository<Long, User> {
 

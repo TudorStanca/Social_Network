@@ -45,11 +45,9 @@ public class SignInController extends AbstractController {
 
             //stage.close();
             userInterfaceStage.show();
-        }
-        catch (MyException e) {
+        } catch (MyException e) {
             MessageAlert.showError(stage, e.getMessage());
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -62,8 +60,7 @@ public class SignInController extends AbstractController {
 
             Controller controller = fxmlLoader.getController();
             controller.setupController(new ControllerDTO(service, stage));
-        }
-        catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -75,7 +72,7 @@ public class SignInController extends AbstractController {
         Optional.ofNullable(service).orElseThrow(() -> new SetupControllerException("Service is null in sign in controller"));
         Optional.ofNullable(stage).orElseThrow(() -> new SetupControllerException("Stage is null in sign in controller"));
         String email = "", password = "";
-        if(controllerDTO.isConnectedUser()){
+        if (controllerDTO.isConnectedUser()) {
             email = controllerDTO.getConnectedUserDTOEmail();
             password = controllerDTO.getConnectedUserDTOPassword();
         }

@@ -2,7 +2,6 @@ package controller.mainUiPages;
 
 import controller.AbstractController;
 import controller.Controller;
-import domain.User;
 import domain.dto.ControllerDTO;
 import domain.dto.FriendDTO;
 import domain.dto.UserDTO;
@@ -74,18 +73,18 @@ public class HomePageController extends AbstractController implements ObserverCo
         }
     }
 
-    private void setFriendRequestsList(){
+    private void setFriendRequestsList() {
         friendRequestsList.setAll((StreamSupport.stream(service.findPendingRecievingFriendRequests(connectedUserId).spliterator(), false).toList()));
     }
 
-    private void setFriendsList(){
+    private void setFriendsList() {
         friendsList.setAll((StreamSupport.stream(service.findUserFriends(connectedUserId).spliterator(), false).toList()));
     }
 
     @Override
     public void update(Event e) {
         FriendChangeEvent event = (FriendChangeEvent) e;
-        if(event.getEventType() == EventType.ACCEPT_REQUEST || event.getEventType() == EventType.DELETE_REQUEST){
+        if (event.getEventType() == EventType.ACCEPT_REQUEST || event.getEventType() == EventType.DELETE_REQUEST) {
             setFriendsList();
         }
         setFriendRequestsList();

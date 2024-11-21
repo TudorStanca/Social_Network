@@ -62,7 +62,8 @@ public abstract class AbstractDBRepository<ID, E extends Entity<ID>> implements 
      */
     private void throwDatabaseExceptions(String errorType, String msg) throws MyException {
         switch (errorType) {
-            case "23505" -> throw new DataBaseUniqueConstraintViolationError("The entity " + getForeignKeyFromError(msg) + " already exists");
+            case "23505" ->
+                    throw new DataBaseUniqueConstraintViolationError("The entity " + getForeignKeyFromError(msg) + " already exists");
             case "P0001" -> throw new DataBaseUniqueConstraintViolationError("The entity already exists");
             case "23503" -> throw new ForeignKeyViolationException(getForeignKeyFromError(msg));
             default -> throw new DatabaseConnectionException();

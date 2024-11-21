@@ -1,6 +1,5 @@
 package controller;
 
-import domain.User;
 import domain.dto.ControllerDTO;
 import domain.dto.FriendDTO;
 import domain.exceptions.MyException;
@@ -34,8 +33,7 @@ public class FriendController extends AbstractController {
     private void handleAddButton(ActionEvent event) {
         try {
             service.addFriend(connectedUserId, friendDTO.getIdFriend());
-        }
-        catch (MyException e){
+        } catch (MyException e) {
             MessageAlert.showError(stage, e.getMessage());
         }
     }
@@ -44,8 +42,7 @@ public class FriendController extends AbstractController {
     private void handleAcceptButton(ActionEvent event) {
         try {
             service.updateFriend(friendDTO.getIdFriendship(), true, LocalDateTime.now());
-        }
-        catch (MyException e){
+        } catch (MyException e) {
             MessageAlert.showError(stage, e.getMessage());
         }
     }
@@ -54,18 +51,16 @@ public class FriendController extends AbstractController {
     private void handleDeclineButton(ActionEvent event) {
         try {
             service.deleteFriend(friendDTO.getIdFriendship());
-        }
-        catch (MyException e){
+        } catch (MyException e) {
             MessageAlert.showError(stage, e.getMessage());
         }
     }
 
     @FXML
     private void handleDeleteButton(ActionEvent event) {
-        try{
+        try {
             service.deleteFriend(friendDTO.getIdFriendship());
-        }
-        catch (MyException e){
+        } catch (MyException e) {
             MessageAlert.showError(stage, e.getMessage());
         }
     }

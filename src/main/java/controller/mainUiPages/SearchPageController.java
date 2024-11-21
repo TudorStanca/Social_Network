@@ -2,8 +2,6 @@ package controller.mainUiPages;
 
 import controller.AbstractController;
 import controller.Controller;
-import domain.Friend;
-import domain.User;
 import domain.dto.ControllerDTO;
 import domain.dto.FriendDTO;
 import domain.dto.UserDTO;
@@ -51,11 +49,11 @@ public class SearchPageController extends AbstractController implements Observer
         });
     }
 
-    private void setCandidateFriendsList(){
+    private void setCandidateFriendsList() {
         candidateFriendsList.setAll((StreamSupport.stream(service.findUserCandidateFriends(connectedUserId).spliterator(), false).toList()));
     }
 
-    private void handleFilter(){
+    private void handleFilter() {
         Predicate<FriendDTO> p1 = friend -> (friend.getFirstName() + " " + friend.getLastName()).startsWith(searchTextField.getText());
         loadCandidateFriends(candidateFriendsList.filtered(p1));
     }
@@ -78,7 +76,7 @@ public class SearchPageController extends AbstractController implements Observer
     @Override
     public void update(Event e) {
         FriendChangeEvent event = (FriendChangeEvent) e;
-        if(event.getEventType() == EventType.CREATE_REQUEST || event.getEventType() == EventType.DELETE_REQUEST){
+        if (event.getEventType() == EventType.CREATE_REQUEST || event.getEventType() == EventType.DELETE_REQUEST) {
             setCandidateFriendsList();
             searchTextField.clear();
         }
@@ -93,7 +91,7 @@ public class SearchPageController extends AbstractController implements Observer
 
         service.addObserver(this);
 
-        connectedUserId= controllerDTO.getConnectedUserId();
+        connectedUserId = controllerDTO.getConnectedUserId();
         Optional.ofNullable(connectedUserId).orElseThrow(() -> new SetupControllerException("ID is null in search page controller"));
 
         setCandidateFriendsList();

@@ -1,6 +1,5 @@
 package ui;
 
-import controller.AbstractController;
 import controller.Controller;
 import domain.Friend;
 import domain.User;
@@ -13,7 +12,6 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 import repository.Repository;
 import repository.database.FriendDBRepository;

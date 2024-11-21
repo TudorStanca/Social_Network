@@ -16,6 +16,7 @@ module ui {
     exports controller.mainUiPages;
     exports ui;
     exports domain;
+    exports domain.dto;
     exports repository;
     exports service;
 }

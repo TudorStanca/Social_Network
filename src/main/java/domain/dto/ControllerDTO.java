@@ -1,6 +1,5 @@
 package domain.dto;
 
-import domain.User;
 import javafx.stage.Stage;
 import service.Service;
 import utils.FriendButtonType;
@@ -73,7 +72,7 @@ public class ControllerDTO {
         return connectedUserDTO.getPassword();
     }
 
-    public Long getFriendDTOIdFriendship(){
+    public Long getFriendDTOIdFriendship() {
         return friendDTO.getIdFriendship();
     }
 

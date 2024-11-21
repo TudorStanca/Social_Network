@@ -12,7 +12,6 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 import ui.MainApplication;
 
@@ -108,7 +107,7 @@ public class UserInterfaceController extends AbstractController {
 
     @FXML
     private void handleSignOutButton() {
-        try{
+        try {
             FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("sign-in.fxml"));
 
             Stage signInStage = initNewView(fxmlLoader, "Sign In");
@@ -117,8 +116,7 @@ public class UserInterfaceController extends AbstractController {
 
             stage.close();
             signInStage.show();
-        }
-        catch(IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
