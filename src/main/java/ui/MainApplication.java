@@ -1,5 +1,6 @@
 package ui;
 
+import config.Config;
 import controller.Controller;
 import domain.Friend;
 import domain.User;
@@ -27,9 +28,9 @@ public class MainApplication extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
 
-        String url = "jdbc:postgresql://localhost:5432/SOCIAL_NETWORK_MAP";
-        String user = "postgres";
-        String password = "1234";
+        String url = Config.getProperties().getProperty("db.url");
+        String user = Config.getProperties().getProperty("db.username");
+        String password = Config.getProperties().getProperty("db.password");
 
         Repository<Long, User> repoUser = new UserDBRepository(user, password, url);
         Repository<Long, Friend> repoFriend = new FriendDBRepository(user, password, url);

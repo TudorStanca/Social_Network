@@ -2,6 +2,7 @@ package controller.mainUiPages;
 
 import controller.AbstractController;
 import controller.Controller;
+import controller.UserInterfaceController;
 import domain.dto.ControllerDTO;
 import domain.dto.FriendDTO;
 import domain.dto.UserDTO;
@@ -32,6 +33,8 @@ public class HomePageController extends AbstractController implements ObserverCo
     private ObservableList<FriendDTO> friendRequestsList = FXCollections.observableArrayList();
     private ObservableList<FriendDTO> friendsList = FXCollections.observableArrayList();
     private Long connectedUserId;
+
+    private Controller parentController;
 
     @FXML
     private VBox leftVBox, rightVBox;
@@ -74,7 +77,12 @@ public class HomePageController extends AbstractController implements ObserverCo
     }
 
     private void setFriendRequestsList() {
-        friendRequestsList.setAll((StreamSupport.stream(service.findPendingRecievingFriendRequests(connectedUserId).spliterator(), false).toList()));
+        List<FriendDTO> lst = (List<FriendDTO>) service.findPendingRecievingFriendRequests(connectedUserId);
+        if(lst.size() > friendRequestsList.size()) {
+            ((UserInterfaceController) parentController).setNotificationIconVisibility(true);
+        }
+        //friendRequestsList.setAll((StreamSupport.stream(service.findPendingRecievingFriendRequests(connectedUserId).spliterator(), false).toList()));
+        friendRequestsList.setAll(lst);
     }
 
     private void setFriendsList() {
@@ -94,13 +102,17 @@ public class HomePageController extends AbstractController implements ObserverCo
     public void setupController(ControllerDTO controllerDTO) {
         service = controllerDTO.getService();
         stage = controllerDTO.getStage();
-        Optional.ofNullable(service).orElseThrow(() -> new SetupControllerException("Service is null in user interface controller"));
-        Optional.ofNullable(stage).orElseThrow(() -> new SetupControllerException("Stage is null in user interface controller"));
+        Optional.ofNullable(service).orElseThrow(() -> new SetupControllerException("Service is null in home page controller"));
+        Optional.ofNullable(stage).orElseThrow(() -> new SetupControllerException("Stage is null in home page controller"));
 
         service.addObserver(this);
 
         connectedUserId = controllerDTO.getConnectedUserId();
-        Optional.ofNullable(connectedUserId).orElseThrow(() -> new SetupControllerException("ID is null in search page controller"));
+        Optional.ofNullable(connectedUserId).orElseThrow(() -> new SetupControllerException("ID is null in home page controller"));
+
+        parentController = controllerDTO.getParentController();
+        Optional.ofNullable(parentController).orElseThrow(() -> new SetupControllerException("Parent controller is null in home page controller"));
+        ((UserInterfaceController) parentController).setNotificationIconVisibility(false);
 
         setFriendRequestsList();
         setFriendsList();

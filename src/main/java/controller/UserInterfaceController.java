@@ -7,8 +7,10 @@ import domain.dto.UserDTO;
 import domain.exceptions.SetupControllerException;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -35,6 +37,9 @@ public class UserInterfaceController extends AbstractController {
     @FXML
     private Button homeButton, searchButton, messagesButton, profileButton, signOutButton;
 
+    @FXML
+    private ImageView notificationImage;
+
     private void changeBorderPane(Pane newBorderPane) {
         root.getChildren().setAll(leftVBox, newBorderPane);
         AnchorPane.setTopAnchor(newBorderPane, 0.0);
@@ -59,6 +64,10 @@ public class UserInterfaceController extends AbstractController {
         profileButton.setGraphicTextGap(leftVBox.getPrefWidth() / 2 - 75);
         signOutButton.setPrefSize(leftVBox.getPrefWidth(), 50);
         signOutButton.setGraphicTextGap(leftVBox.getPrefWidth() / 2 - 75);
+
+        VBox.setMargin(notificationImage, new Insets(0, 0, 10, leftVBox.getPrefWidth() - 50));
+        setNotificationIconVisibility(false);
+
     }
 
     @FXML
@@ -69,7 +78,7 @@ public class UserInterfaceController extends AbstractController {
             Pane homeBorderPane = fxmlLoader.load();
 
             Controller controller = fxmlLoader.getController();
-            controller.setupController(new ControllerDTO(service, stage, new UserDTO(connectedUser.getId())));
+            controller.setupController(new ControllerDTO(service, stage, new UserDTO(connectedUser.getId()), this));
             currentController = (ObserverController) controller;
 
             changeBorderPane(homeBorderPane);
@@ -119,6 +128,10 @@ public class UserInterfaceController extends AbstractController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void setNotificationIconVisibility(boolean visible) {
+        notificationImage.setVisible(visible);
     }
 
     @Override

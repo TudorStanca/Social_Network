@@ -1,5 +1,6 @@
 package domain.dto;
 
+import controller.Controller;
 import javafx.stage.Stage;
 import service.Service;
 import utils.FriendButtonType;
@@ -13,6 +14,7 @@ public class ControllerDTO {
     private UserDTO connectedUserDTO = null;
     private FriendDTO friendDTO = null;
     private FriendButtonType friendButtonType = null;
+    private Controller parentController = null;
 
     public ControllerDTO(Service service, Stage stage, UserDTO connectedUserDTO, FriendDTO friendDTO, FriendButtonType friendButtonType) {
         this.service = service;
@@ -27,6 +29,13 @@ public class ControllerDTO {
         this.stage = stage;
         this.connectedUserDTO = connectedUserDTO;
         this.friendDTO = friendDTO;
+    }
+
+    public ControllerDTO(Service service, Stage stage, UserDTO connectedUserDTO, Controller parentController) {
+        this.service = service;
+        this.stage = stage;
+        this.connectedUserDTO = connectedUserDTO;
+        this.parentController = parentController;
     }
 
     public ControllerDTO(Service service, Stage stage, UserDTO connectedUserDTO) {
@@ -94,5 +103,9 @@ public class ControllerDTO {
 
     public FriendButtonType getFriendButtonType() {
         return friendButtonType;
+    }
+
+    public Controller getParentController() {
+        return parentController;
     }
 }

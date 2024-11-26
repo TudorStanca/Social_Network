@@ -19,8 +19,16 @@
             </ImageView>
             <Label fx:id="connectedUserLabel" text="USERNAME">
                <VBox.margin>
-                  <Insets bottom="60.0" top="30.0" />
+                  <Insets bottom="25.0" top="30.0" />
                </VBox.margin></Label>
+            <ImageView fx:id="notificationImage" fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/notification-icon.png" />
+               </image>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+            </ImageView>
             <Button fx:id="homeButton" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#handleHomeButton" text="Home">
                <graphic>
                   <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">

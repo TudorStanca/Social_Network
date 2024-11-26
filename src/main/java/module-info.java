@@ -19,4 +19,7 @@ module ui {
     exports domain.dto;
     exports repository;
     exports service;
+
+    exports config;
+    opens config to javafx.fxml;
 }
