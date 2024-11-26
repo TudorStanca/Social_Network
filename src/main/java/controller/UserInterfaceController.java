@@ -1,5 +1,6 @@
 package controller;
 
+import controller.mainUiPages.HomePageController;
 import controller.mainUiPages.ObserverController;
 import domain.User;
 import domain.dto.ControllerDTO;
@@ -16,11 +17,16 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import ui.MainApplication;
+import utils.events.Event;
+import utils.events.EventType;
+import utils.events.FriendChangeEvent;
 
 import java.io.IOException;
 import java.util.Optional;
 
-public class UserInterfaceController extends AbstractController {
+public class UserInterfaceController extends AbstractController implements ObserverController {
+
+    private boolean homeVisited;
 
     private ObserverController currentController = null;
     private User connectedUser;
@@ -39,6 +45,13 @@ public class UserInterfaceController extends AbstractController {
 
     @FXML
     private ImageView notificationImage;
+
+    private void setNotificationIcon(){
+        if(homeVisited){
+            homeVisited = false;
+            notificationImage.setVisible(false);
+        }
+    }
 
     private void changeBorderPane(Pane newBorderPane) {
         root.getChildren().setAll(leftVBox, newBorderPane);
@@ -66,13 +79,14 @@ public class UserInterfaceController extends AbstractController {
         signOutButton.setGraphicTextGap(leftVBox.getPrefWidth() / 2 - 75);
 
         VBox.setMargin(notificationImage, new Insets(0, 0, 10, leftVBox.getPrefWidth() - 50));
-        setNotificationIconVisibility(false);
-
+        notificationImage.setVisible(false);
     }
 
     @FXML
     private void handleHomeButton() {
         service.removeObserver(currentController);
+        homeVisited = true;
+        setNotificationIcon();
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("mainUiPages/home-page.fxml"));
             Pane homeBorderPane = fxmlLoader.load();
@@ -90,6 +104,7 @@ public class UserInterfaceController extends AbstractController {
     @FXML
     private void handleSearchButton() {
         service.removeObserver(currentController);
+        setNotificationIcon();
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("mainUiPages/search-page.fxml"));
             Pane searchBorderPane = fxmlLoader.load();
@@ -130,16 +145,14 @@ public class UserInterfaceController extends AbstractController {
         }
     }
 
-    public void setNotificationIconVisibility(boolean visible) {
-        notificationImage.setVisible(visible);
-    }
-
     @Override
     public void setupController(ControllerDTO controllerDTO) {
         service = controllerDTO.getService();
         stage = controllerDTO.getStage();
         Optional.ofNullable(service).orElseThrow(() -> new SetupControllerException("Service is null in user interface controller"));
         Optional.ofNullable(stage).orElseThrow(() -> new SetupControllerException("Stage is null in user interface controller"));
+
+        service.addObserver(this);
 
         Long id = controllerDTO.getConnectedUserId();
         String firstName = controllerDTO.getConnectedUserDTOFirstName();
@@ -157,6 +170,16 @@ public class UserInterfaceController extends AbstractController {
 
         stage.setOnCloseRequest(event -> {
             service.removeObserver(currentController);
+            service.removeObserver(this);
         });
+    }
+
+    @Override
+    public void update(Event e) {
+        FriendChangeEvent event = (FriendChangeEvent) e;
+        if(event.getEventType() == EventType.CREATE_REQUEST && event.getId().equals(connectedUser.getId())){
+            notificationImage.setVisible(true);
+            homeVisited = currentController instanceof HomePageController;
+        }
     }
 }

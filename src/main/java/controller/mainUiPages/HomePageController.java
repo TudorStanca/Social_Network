@@ -34,8 +34,6 @@ public class HomePageController extends AbstractController implements ObserverCo
     private ObservableList<FriendDTO> friendsList = FXCollections.observableArrayList();
     private Long connectedUserId;
 
-    private Controller parentController;
-
     @FXML
     private VBox leftVBox, rightVBox;
 
@@ -77,12 +75,7 @@ public class HomePageController extends AbstractController implements ObserverCo
     }
 
     private void setFriendRequestsList() {
-        List<FriendDTO> lst = (List<FriendDTO>) service.findPendingRecievingFriendRequests(connectedUserId);
-        if(lst.size() > friendRequestsList.size()) {
-            ((UserInterfaceController) parentController).setNotificationIconVisibility(true);
-        }
-        //friendRequestsList.setAll((StreamSupport.stream(service.findPendingRecievingFriendRequests(connectedUserId).spliterator(), false).toList()));
-        friendRequestsList.setAll(lst);
+        friendRequestsList.setAll((StreamSupport.stream(service.findPendingRecievingFriendRequests(connectedUserId).spliterator(), false).toList()));
     }
 
     private void setFriendsList() {
@@ -109,10 +102,6 @@ public class HomePageController extends AbstractController implements ObserverCo
 
         connectedUserId = controllerDTO.getConnectedUserId();
         Optional.ofNullable(connectedUserId).orElseThrow(() -> new SetupControllerException("ID is null in home page controller"));
-
-        parentController = controllerDTO.getParentController();
-        Optional.ofNullable(parentController).orElseThrow(() -> new SetupControllerException("Parent controller is null in home page controller"));
-        ((UserInterfaceController) parentController).setNotificationIconVisibility(false);
 
         setFriendRequestsList();
         setFriendsList();

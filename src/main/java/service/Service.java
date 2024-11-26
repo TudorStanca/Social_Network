@@ -208,7 +208,7 @@ public class Service implements Observable<Event> {
             throw new ObjectAlreadyInRepositoryException(newFriend);
         }
 
-        notifyObservers(new FriendChangeEvent(EventType.CREATE_REQUEST));
+        notifyObservers(new FriendChangeEvent(id2, EventType.CREATE_REQUEST));
 
         return newFriend;
     }
