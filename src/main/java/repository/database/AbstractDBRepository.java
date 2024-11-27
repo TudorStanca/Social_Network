@@ -60,7 +60,7 @@ public abstract class AbstractDBRepository<ID, E extends Entity<ID>> implements 
      * @param msg       the exception message
      * @throws MyException by default
      */
-    private void throwDatabaseExceptions(String errorType, String msg) throws MyException {
+    protected void throwDatabaseExceptions(String errorType, String msg) throws MyException {
         switch (errorType) {
             case "23505" ->
                     throw new DataBaseUniqueConstraintViolationError("The entity " + getForeignKeyFromError(msg) + " already exists");

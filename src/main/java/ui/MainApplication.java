@@ -3,10 +3,12 @@ package ui;
 import config.Config;
 import controller.Controller;
 import domain.Friend;
+import domain.Message;
 import domain.User;
 import domain.dto.ControllerDTO;
 import domain.dto.UserDTO;
 import domain.validators.FriendValidator;
+import domain.validators.MessageValidator;
 import domain.validators.UserValidator;
 import domain.validators.Validator;
 import javafx.application.Application;
@@ -16,6 +18,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import repository.Repository;
 import repository.database.FriendDBRepository;
+import repository.database.MessageDBRepository;
 import repository.database.UserDBRepository;
 import service.Service;
 
@@ -34,11 +37,13 @@ public class MainApplication extends Application {
 
         Repository<Long, User> repoUser = new UserDBRepository(user, password, url);
         Repository<Long, Friend> repoFriend = new FriendDBRepository(user, password, url);
+        Repository<Long, Message> repoMessage = new MessageDBRepository(user, password, url);
 
         Validator<User> validator = new UserValidator();
         Validator<Friend> validatorFriend = new FriendValidator();
+        Validator<Message> validatorMessage = new MessageValidator();
 
-        service = new Service(repoUser, repoFriend, validator, validatorFriend);
+        service = new Service(repoUser, repoFriend, repoMessage, validator, validatorFriend, validatorMessage);
 
         initView(primaryStage);
         primaryStage.show();

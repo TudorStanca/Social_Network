@@ -45,7 +45,7 @@
                      </image></ImageView>
                </graphic>
             </Button>
-            <Button fx:id="messagesButton" alignment="TOP_LEFT" mnemonicParsing="false" text="Messages">
+            <Button fx:id="messagesButton" alignment="TOP_LEFT" mnemonicParsing="false" onAction="#handleMessagesButton" text="Messages">
                <graphic>
                   <ImageView fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
                      <image>

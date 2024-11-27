@@ -121,7 +121,20 @@ public class UserInterfaceController extends AbstractController implements Obser
 
     @FXML
     private void handleMessagesButton() {
-        //TODO
+        service.removeObserver(currentController);
+        setNotificationIcon();
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("mainUiPages/messages-page.fxml"));
+            Pane searchBorderPane = fxmlLoader.load();
+
+            Controller controller = fxmlLoader.getController();
+            controller.setupController(new ControllerDTO(service, stage, new UserDTO(connectedUser.getId())));
+            currentController = (ObserverController) controller;
+
+            changeBorderPane(searchBorderPane);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML

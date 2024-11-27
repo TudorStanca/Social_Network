@@ -2,6 +2,7 @@ package service;
 
 import domain.Friend;
 import domain.Graph;
+import domain.Message;
 import domain.User;
 import domain.dto.FriendDTO;
 import domain.exceptions.IdNotFoundException;
@@ -26,9 +27,11 @@ public class Service implements Observable<Event> {
 
     private final Repository<Long, User> repoUser;
     private final Repository<Long, Friend> repoFriend;
+    private final Repository<Long, Message> repoMessage;
 
     private final Validator<User> validatorUser;
     private final Validator<Friend> validatorFriend;
+    private final Validator<Message> validatorMessage;
 
     private List<Observer<Event>> observers = new ArrayList<>();
 
@@ -40,11 +43,13 @@ public class Service implements Observable<Event> {
      * @param validatorUser   The validator that validates users
      * @param validatorFriend The validator that validates friends
      */
-    public Service(Repository<Long, User> repoUser, Repository<Long, Friend> repoFriend, Validator<User> validatorUser, Validator<Friend> validatorFriend) {
+    public Service(Repository<Long, User> repoUser, Repository<Long, Friend> repoFriend, Repository<Long, Message> repoMessage, Validator<User> validatorUser, Validator<Friend> validatorFriend, Validator<Message> validatorMessage) {
         this.repoUser = repoUser;
         this.repoFriend = repoFriend;
+        this.repoMessage = repoMessage;
         this.validatorUser = validatorUser;
         this.validatorFriend = validatorFriend;
+        this.validatorMessage = validatorMessage;
     }
 
     @Override
@@ -257,6 +262,40 @@ public class Service implements Observable<Event> {
         notifyObservers(new FriendChangeEvent(EventType.ACCEPT_REQUEST));
 
         return newFriend;
+    }
+
+    public Message addMessage(Long id_from, List<Long> id_to, String message, LocalDateTime date, Long id_reply) {
+        Message newMessage = new Message(id_from, id_to, message, date);
+        newMessage.setReply(id_reply);
+        validatorMessage.validate(newMessage);
+        if (repoMessage.save(newMessage).isPresent()) {
+            throw new ObjectAlreadyInRepositoryException(newMessage);
+        }
+        return newMessage;
+    }
+
+    public Message deleteMessage(Long id) {
+        Optional<Message> message = repoMessage.delete(id);
+        if (message.isEmpty()) {
+            throw new IdNotFoundException(id);
+        }
+
+        return message.get();
+    }
+
+    public Message updateMessage(Long id, String newText, LocalDateTime date) {
+        Optional<Message> message = repoMessage.findOne(id);
+        message.orElseThrow(() -> new IdNotFoundException(id));
+
+        Message newMessage = message.get();
+        newMessage.setMessage(newText);
+        newMessage.setDate(date);
+
+        if (repoMessage.update(newMessage).isPresent()) {
+            throw new IdNotFoundException(id);
+        }
+
+        return newMessage;
     }
 
     /**
