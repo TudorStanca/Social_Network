@@ -1,16 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-
-<HBox fx:id="hBox" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MessageController">
+<HBox fx:id="hBox" alignment="CENTER_LEFT" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MessageController">
    <children>
       <StackPane fx:id="stackPane">
          <children>
-            <TextFlow fx:id="textFlow" />
-            <ToggleButton fx:id="toggleButton" mnemonicParsing="false" opacity="0.0" text="ToggleButton" />
+            <HBox fx:id="messageHBox" alignment="BOTTOM_RIGHT">
+               <children>
+                  <TextFlow fx:id="textFlow" style="-fx-font-family: Helvetica Neue" />
+                  <Label fx:id="dateLabel" text="Label" style="-fx-text-fill: #87b2aa; -fx-font-family: Helvetica Neue; -fx-font-size: 10">
+                     <HBox.margin>
+                        <Insets right="10.0" />
+                     </HBox.margin></Label>
+               </children>
+               <StackPane.margin>
+                  <Insets />
+               </StackPane.margin>
+               <padding>
+                  <Insets bottom="5.0" top="5.0" />
+               </padding>
+            </HBox>
+            <ToggleButton fx:id="toggleButton" mnemonicParsing="false" opacity="0.0" text="ToggleButton">
+               <StackPane.margin>
+                  <Insets />
+               </StackPane.margin></ToggleButton>
          </children>
       </StackPane>
    </children>

@@ -84,11 +84,13 @@ public class HomePageController extends AbstractController implements ObserverCo
 
     @Override
     public void update(Event e) {
-        FriendChangeEvent event = (FriendChangeEvent) e;
-        if (event.getEventType() == EventType.ACCEPT_REQUEST || event.getEventType() == EventType.DELETE_REQUEST) {
-            setFriendsList();
+        if (e instanceof FriendChangeEvent) {
+            FriendChangeEvent event = (FriendChangeEvent) e;
+            if (event.getEventType() == EventType.ACCEPT_REQUEST || event.getEventType() == EventType.DELETE_REQUEST) {
+                setFriendsList();
+            }
+            setFriendRequestsList();
         }
-        setFriendRequestsList();
     }
 
     @Override

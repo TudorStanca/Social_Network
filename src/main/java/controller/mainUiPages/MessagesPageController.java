@@ -2,16 +2,23 @@ package controller.mainUiPages;
 
 import controller.AbstractController;
 import controller.Controller;
+import controller.MessageAlert;
+import controller.MessageController;
 import domain.dto.ControllerDTO;
 import domain.dto.FriendDTO;
 import domain.dto.MessageDTO;
 import domain.dto.UserDTO;
+import domain.exceptions.MyException;
 import domain.exceptions.SetupControllerException;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
@@ -21,11 +28,16 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import ui.MainApplication;
 import utils.FriendButtonType;
+import utils.MessageType;
 import utils.events.Event;
 import utils.events.EventType;
 import utils.events.FriendChangeEvent;
+import utils.events.MessageChangeEvent;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -67,6 +79,7 @@ public class MessagesPageController extends AbstractController implements Observ
         leftScrollPane.setPrefHeight(height);
         rightVBox.setPrefSize(width * 0.80 * 0.70, height);
         rightScrollPane.setPrefHeight(height - 177);
+        messagesVBox.setPrefWidth(width * 0.80 * 0.70 - 23);
 
         messageTextField.setPrefWidth(width * 0.80 * 0.70 - 100);
 
@@ -80,12 +93,25 @@ public class MessagesPageController extends AbstractController implements Observ
         });
     }
 
+    @FXML
+    private void handleSendButton(ActionEvent event) {
+        try {
+            String message = messageTextField.getText();
+            service.addMessage(connectedUserId, Arrays.asList(selectedFriendId), message, LocalDateTime.now(), null);
+            messageTextField.clear();
+        }
+        catch (MyException e) {
+            MessageAlert.showError(stage, e.getMessage());
+        }
+    }
+
     private void setFriendsList() {
         friendsList.setAll((StreamSupport.stream(service.findUserFriends(connectedUserId).spliterator(), false).toList()));
     }
 
     private void setMessageList() {
         messageList.setAll(StreamSupport.stream(service.findMessages(connectedUserId, selectedFriendId).spliterator(), false).toList());
+        Platform.runLater(() -> rightScrollPane.setVvalue(1.0));
     }
 
     private void handleFilter() {
@@ -101,8 +127,46 @@ public class MessagesPageController extends AbstractController implements Observ
                 Node messageUi = fxmlLoader.load();
 
                 Controller controller = fxmlLoader.getController();
-                controller.setupController(new ControllerDTO(service, stage, msg));
-                messagesVBox.getChildren().add(messageUi);
+                controller.setupController(new ControllerDTO(service, stage, msg, MessageType.MESSAGE));
+
+                VBox vBoxContainingMessageAndReply = new VBox();
+                HBox hBoxContainingVBoxMessageAndReply = new HBox(vBoxContainingMessageAndReply);
+
+                if(msg.getIdFrom().equals(connectedUserId)){
+                    ((MessageController) controller).setAligment(Pos.CENTER_RIGHT);
+                    ((MessageController) controller).setBackgroundColor("#005c4b");
+                }
+                else{
+                    ((MessageController) controller).setAligment(Pos.CENTER_LEFT);
+                    ((MessageController) controller).setBackgroundColor("#363636");
+                }
+
+                if (msg.getIdMessageReply() != null){
+                    FXMLLoader fxmlLoaderReply = new FXMLLoader(MainApplication.class.getResource("message.fxml"));
+                    Node messageReplyUi = fxmlLoaderReply.load();
+
+                    Controller controllerReply = fxmlLoaderReply.getController();
+                    controllerReply.setupController(new ControllerDTO(service, stage, msg, MessageType.REPLY));
+
+                    vBoxContainingMessageAndReply.getChildren().add(messageReplyUi);
+                    vBoxContainingMessageAndReply.getChildren().add(messageUi);
+
+                    if(msg.getIdFrom().equals(connectedUserId)){
+                        ((MessageController) controllerReply).setAligment(Pos.CENTER_RIGHT);
+                        VBox.setMargin(messageReplyUi, new Insets(0, 10, 0, 0));
+                        ((MessageController) controllerReply).setBackgroundColor("#ff0000");
+                    }
+                    else{
+                        ((MessageController) controller).setAligment(Pos.CENTER_LEFT);
+                        VBox.setMargin(messageReplyUi, new Insets(0, 0, 0, 10));
+                        ((MessageController) controllerReply).setBackgroundColor("#ff0000");
+                    }
+
+                    messagesVBox.getChildren().add(hBoxContainingVBoxMessageAndReply);
+                }
+                else {
+                    messagesVBox.getChildren().add(messageUi);
+                }
             }
             catch (IOException e){
                 e.printStackTrace();
@@ -165,9 +229,17 @@ public class MessagesPageController extends AbstractController implements Observ
 
     @Override
     public void update(Event e) {
-        FriendChangeEvent event = (FriendChangeEvent) e;
-        if (event.getEventType() == EventType.ACCEPT_REQUEST || event.getEventType() == EventType.DELETE_REQUEST) {
-            setFriendsList();
+        if(e instanceof FriendChangeEvent) {
+            FriendChangeEvent event = (FriendChangeEvent) e;
+            if (event.getEventType() == EventType.ACCEPT_REQUEST || event.getEventType() == EventType.DELETE_REQUEST) {
+                setFriendsList();
+            }
+        }
+        else if(e instanceof MessageChangeEvent){
+            MessageChangeEvent event = (MessageChangeEvent) e;
+            if (event.getType() == EventType.CREATE_MESSAGE) {
+                setMessageList();
+            }
         }
     }
 }

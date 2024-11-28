@@ -189,10 +189,12 @@ public class UserInterfaceController extends AbstractController implements Obser
 
     @Override
     public void update(Event e) {
-        FriendChangeEvent event = (FriendChangeEvent) e;
-        if(event.getEventType() == EventType.CREATE_REQUEST && event.getId().equals(connectedUser.getId())){
-            notificationImage.setVisible(true);
-            homeVisited = currentController instanceof HomePageController;
+        if(e instanceof FriendChangeEvent) {
+            FriendChangeEvent event = (FriendChangeEvent) e;
+            if (event.getEventType() == EventType.CREATE_REQUEST && event.getId().equals(connectedUser.getId())) {
+                notificationImage.setVisible(true);
+                homeVisited = currentController instanceof HomePageController;
+            }
         }
     }
 }

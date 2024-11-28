@@ -18,6 +18,7 @@ import repository.database.UserDBRepository;
 import utils.events.Event;
 import utils.events.EventType;
 import utils.events.FriendChangeEvent;
+import utils.events.MessageChangeEvent;
 import utils.observer.Observable;
 import utils.observer.Observer;
 
@@ -277,6 +278,9 @@ public class Service implements Observable<Event> {
         if (repoMessage.save(newMessage).isPresent()) {
             throw new ObjectAlreadyInRepositoryException(newMessage);
         }
+
+        notifyObservers(new MessageChangeEvent(EventType.CREATE_MESSAGE, id_from, id_to));
+
         return newMessage;
     }
 

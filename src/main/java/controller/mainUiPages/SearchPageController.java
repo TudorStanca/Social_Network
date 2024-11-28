@@ -75,10 +75,12 @@ public class SearchPageController extends AbstractController implements Observer
 
     @Override
     public void update(Event e) {
-        FriendChangeEvent event = (FriendChangeEvent) e;
-        if (event.getEventType() == EventType.CREATE_REQUEST || event.getEventType() == EventType.DELETE_REQUEST) {
-            setCandidateFriendsList();
-            searchTextField.clear();
+        if (e instanceof FriendChangeEvent) {
+            FriendChangeEvent event = (FriendChangeEvent) e;
+            if (event.getEventType() == EventType.CREATE_REQUEST || event.getEventType() == EventType.DELETE_REQUEST) {
+                setCandidateFriendsList();
+                searchTextField.clear();
+            }
         }
     }
 

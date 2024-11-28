@@ -4,6 +4,7 @@ import controller.Controller;
 import javafx.stage.Stage;
 import service.Service;
 import utils.FriendButtonType;
+import utils.MessageType;
 
 import java.time.LocalDateTime;
 
@@ -15,6 +16,7 @@ public class ControllerDTO {
     private FriendDTO friendDTO = null;
     private MessageDTO messageDTO = null;
     private FriendButtonType friendButtonType = null;
+    private MessageType messageType = null;
     private Controller parentController = null;
 
     public ControllerDTO(Service service, Stage stage, UserDTO connectedUserDTO, FriendDTO friendDTO, FriendButtonType friendButtonType) {
@@ -25,10 +27,11 @@ public class ControllerDTO {
         this.friendButtonType = friendButtonType;
     }
 
-    public ControllerDTO(Service service, Stage stage, MessageDTO messageDTO) {
+    public ControllerDTO(Service service, Stage stage, MessageDTO messageDTO, MessageType messageType) {
         this.service = service;
         this.stage = stage;
         this.messageDTO = messageDTO;
+        this.messageType = messageType;
     }
 
     public ControllerDTO(Service service, Stage stage, UserDTO connectedUserDTO, FriendDTO friendDTO) {
@@ -114,6 +117,10 @@ public class ControllerDTO {
 
     public MessageDTO getMessageDTO() {
         return messageDTO;
+    }
+
+    public MessageType getMessageType() {
+        return messageType;
     }
 
     public Controller getParentController() {

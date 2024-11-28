@@ -50,12 +50,17 @@ public class MessageDBRepository extends AbstractDBRepository<Long, Message> {
 
     @Override
     protected PreparedStatement saveToDatabase(Message entity, Connection conn) throws SQLException {
-        String query = "INSERT INTO MESSAGES (id_from, message, date, id_reply) VALUES (?, ?, ?, ?)";
+        String query = "INSERT INTO MESSAGES (id_from, message, date, id_reply) VALUES (?, ?, ?, ?) RETURNING id";
         PreparedStatement statement = conn.prepareStatement(query);
         statement.setLong(1, entity.getFrom());
         statement.setString(2, entity.getMessage());
         statement.setTimestamp(3, Timestamp.valueOf(entity.getDate()));
-        statement.setLong(4, entity.getReply());
+        if(entity.getReply() != null) {
+            statement.setLong(4, entity.getReply());
+        }
+        else{
+            statement.setNull(4, Types.NULL);
+        }
         return statement;
     }
 
@@ -74,7 +79,12 @@ public class MessageDBRepository extends AbstractDBRepository<Long, Message> {
         statement.setLong(1, entity.getFrom());
         statement.setString(2, entity.getMessage());
         statement.setTimestamp(3, Timestamp.valueOf(entity.getDate()));
-        statement.setLong(4, entity.getReply());
+        if(entity.getReply() != null) {
+            statement.setLong(4, entity.getReply());
+        }
+        else{
+            statement.setNull(4, Types.NULL);
+        }
         statement.setLong(5, entity.getId());
         return statement;
     }
@@ -139,7 +149,10 @@ public class MessageDBRepository extends AbstractDBRepository<Long, Message> {
         Optional.ofNullable(entity).orElseThrow(() -> new IllegalArgumentException("Entity cannot be null"));
 
         try (Connection conn = DriverManager.getConnection(databaseURL, databaseUser, databasePassword)) {
-            saveToDatabase(entity, conn).execute();
+            ResultSet rs = saveToDatabase(entity, conn).executeQuery();
+            if (rs.next()) {
+                entity.setId(rs.getLong("id"));
+            }
             saveToIds(entity, conn);
         } catch (SQLException e) {
             throwDatabaseExceptions(e.getSQLState(), e.getMessage());
@@ -165,7 +178,8 @@ public class MessageDBRepository extends AbstractDBRepository<Long, Message> {
         String query = """
             SELECT M.*, MU.id_to
             FROM MESSAGES M
-            INNER JOIN MESSAGES_TO_USERS MU ON M.id = MU.id_message AND ((M.id_from = ? OR M.id_from = ?) AND (MU.id_to = ? OR MU.id_to = ?))""";
+            INNER JOIN MESSAGES_TO_USERS MU ON M.id = MU.id_message AND ((M.id_from = ? OR M.id_from = ?) AND (MU.id_to = ? OR MU.id_to = ?))
+            ORDER BY M.date""";
         Optional.ofNullable(idFrom).orElseThrow(() -> new IllegalArgumentException("IdFrom cannot be null"));
         Optional.ofNullable(idTo).orElseThrow(() -> new IllegalArgumentException("IdTo cannot be null"));
 
@@ -186,14 +200,19 @@ public class MessageDBRepository extends AbstractDBRepository<Long, Message> {
                 Timestamp temp = resultSet.getTimestamp("date");
                 LocalDateTime date = LocalDateTime.ofInstant(Instant.ofEpochMilli(temp.getTime()), ZoneOffset.UTC);
                 Long idReply = resultSet.getLong("id_reply");
+                if(resultSet.wasNull()){
+                    idReply = null;
+                }
 
-                if(idReply == null){
+                if(idReply != null){
                     ResultSet resultSetReply = getReplyMessageResultSet(idReply, idFrom, idTo, conn);
-                    Long idMessageReply = resultSetReply.getLong("id");
-                    String textReply = resultSetReply.getString("message");
-                    Timestamp tempReply = resultSet.getTimestamp("date");
-                    LocalDateTime dateReply = LocalDateTime.ofInstant(Instant.ofEpochMilli(tempReply.getTime()), ZoneOffset.UTC);
-                    lst.add(new MessageDTO(idMessage, idFromUser, idToUser, text, date, idMessageReply, textReply, dateReply));
+                    if(resultSetReply.next()){
+                        Long idMessageReply = resultSetReply.getLong("id");
+                        String textReply = resultSetReply.getString("message");
+                        Timestamp tempReply = resultSet.getTimestamp("date");
+                        LocalDateTime dateReply = LocalDateTime.ofInstant(Instant.ofEpochMilli(tempReply.getTime()), ZoneOffset.UTC);
+                        lst.add(new MessageDTO(idMessage, idFromUser, idToUser, text, date, idMessageReply, textReply, dateReply));
+                    }
                 }
                 else{
                     lst.add(new MessageDTO(idMessage, idFromUser, idToUser, text, date));
