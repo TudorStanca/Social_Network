@@ -1,34 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.mainUiPages.MessagesPageController">
+<BorderPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.mainUiPages.MessagesPageController">
    <left>
-      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+      <VBox fx:id="leftVBox" prefHeight="200.0" prefWidth="100.0" style="-fx-background-color: #42f572;" BorderPane.alignment="CENTER">
          <children>
-            <TextField />
-            <ScrollPane prefHeight="200.0" prefWidth="200.0">
+            <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="25.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Label text="Search" />
+                  <TextField fx:id="searchTextField" />
+               </children>
+               <padding>
+                  <Insets left="15.0" />
+               </padding>
+            </HBox>
+            <ScrollPane fx:id="leftScrollPane" prefHeight="200.0" prefWidth="200.0">
                <content>
-                  <VBox prefHeight="200.0" prefWidth="100.0" />
+                  <VBox fx:id="friendsListVBox" prefHeight="200.0" prefWidth="100.0" />
                </content>
             </ScrollPane>
          </children>
+         <BorderPane.margin>
+            <Insets />
+         </BorderPane.margin>
       </VBox>
    </left>
    <center>
-      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+      <VBox fx:id="rightVBox" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
          <children>
-            <ScrollPane prefHeight="200.0" prefWidth="200.0">
+            <ImageView fx:id="friendIcon" fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../images/user-icon.png" />
+               </image>
+               <VBox.margin>
+                  <Insets bottom="20.0" left="30.0" top="20.0" />
+               </VBox.margin>
+            </ImageView>
+            <Label fx:id="userNameLabel" text="Label">
+               <VBox.margin>
+                  <Insets bottom="20.0" left="30.0" />
+               </VBox.margin></Label>
+            <ScrollPane fx:id="rightScrollPane" prefHeight="200.0" prefWidth="200.0">
                <content>
-                  <VBox prefHeight="200.0" prefWidth="100.0" />
+                  <VBox fx:id="messagesVBox" prefHeight="200.0" prefWidth="100.0" />
                </content>
             </ScrollPane>
-            <HBox prefHeight="100.0" prefWidth="200.0">
+            <HBox fx:id="bottomHBox" alignment="CENTER_LEFT" prefWidth="500.0">
                <children>
-                  <TextField />
-                  <Button mnemonicParsing="false" text="Button" />
+                  <TextField fx:id="messageTextField" prefHeight="50.0" promptText="Enter a message" />
+                  <Button mnemonicParsing="false" prefHeight="50.0" prefWidth="100.0" text="Send" />
                </children>
             </HBox>
          </children>

@@ -5,6 +5,7 @@ import domain.Graph;
 import domain.Message;
 import domain.User;
 import domain.dto.FriendDTO;
+import domain.dto.MessageDTO;
 import domain.exceptions.IdNotFoundException;
 import domain.exceptions.ObjectAlreadyInRepositoryException;
 import domain.exceptions.UserNotFoundInDatabase;
@@ -12,6 +13,7 @@ import domain.exceptions.ValidationException;
 import domain.validators.Validator;
 import repository.Repository;
 import repository.database.FriendDBRepository;
+import repository.database.MessageDBRepository;
 import repository.database.UserDBRepository;
 import utils.events.Event;
 import utils.events.EventType;
@@ -137,6 +139,10 @@ public class Service implements Observable<Event> {
 
     public Iterable<FriendDTO> findUserFriends(Long userId) {
         return ((FriendDBRepository) repoFriend).findFriends(userId);
+    }
+
+    public Iterable<MessageDTO> findMessages(Long userId, Long friendId) {
+        return ((MessageDBRepository) repoMessage).getMessages(userId, friendId);
     }
 
     /**

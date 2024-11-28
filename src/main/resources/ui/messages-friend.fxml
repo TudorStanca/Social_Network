@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="100.0" prefWidth="400.0" style="-fx-background-color: #eb1c6f;" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MessagesFriendController">
+   <children>
+      <Label fx:id="friendNameLabel" alignment="CENTER" layoutX="100.0" layoutY="40.0" text="Label" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0" AnchorPane.topAnchor="40.0" />
+      <ImageView fitHeight="50.0" fitWidth="50.0" layoutX="29.0" layoutY="26.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="25.0" AnchorPane.leftAnchor="30.0" AnchorPane.topAnchor="25.0">
+         <image>
+            <Image url="@../images/user-icon.png" />
+         </image></ImageView>
+      <ToggleButton fx:id="toggleButton" onAction="#handleToggleButton" layoutX="94.0" layoutY="38.0" mnemonicParsing="false" opacity="0.0" prefHeight="22.0" prefWidth="113.0" text="dsadasdasda" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+   </children>
+</AnchorPane>

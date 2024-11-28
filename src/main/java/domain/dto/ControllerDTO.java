@@ -13,6 +13,7 @@ public class ControllerDTO {
     private Stage stage = null;
     private UserDTO connectedUserDTO = null;
     private FriendDTO friendDTO = null;
+    private MessageDTO messageDTO = null;
     private FriendButtonType friendButtonType = null;
     private Controller parentController = null;
 
@@ -22,6 +23,12 @@ public class ControllerDTO {
         this.connectedUserDTO = connectedUserDTO;
         this.friendDTO = friendDTO;
         this.friendButtonType = friendButtonType;
+    }
+
+    public ControllerDTO(Service service, Stage stage, MessageDTO messageDTO) {
+        this.service = service;
+        this.stage = stage;
+        this.messageDTO = messageDTO;
     }
 
     public ControllerDTO(Service service, Stage stage, UserDTO connectedUserDTO, FriendDTO friendDTO) {
@@ -103,6 +110,10 @@ public class ControllerDTO {
 
     public FriendButtonType getFriendButtonType() {
         return friendButtonType;
+    }
+
+    public MessageDTO getMessageDTO() {
+        return messageDTO;
     }
 
     public Controller getParentController() {

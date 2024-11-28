@@ -2,6 +2,7 @@ package repository.database;
 
 import domain.Message;
 import domain.User;
+import domain.dto.MessageDTO;
 import domain.exceptions.DatabaseConnectionException;
 
 import java.sql.*;
@@ -144,5 +145,64 @@ public class MessageDBRepository extends AbstractDBRepository<Long, Message> {
             throwDatabaseExceptions(e.getSQLState(), e.getMessage());
         }
         return Optional.empty();
+    }
+
+    private ResultSet getReplyMessageResultSet(Long idReply, Long idFrom, Long idTo, Connection conn) throws SQLException {
+        String query = """
+                SELECT M.id, M.id_from, M.message, M.date
+                FROM MESSAGES M
+                INNER JOIN messages MD ON M.id = MD.id_reply
+                INNER JOIN messages_to_users MU ON M.id = MU.id_message AND (MU.id_to = ? OR MU.id_to = ?)
+                WHERE M.id = ?""";
+        PreparedStatement statement = conn.prepareStatement(query);
+        statement.setLong(1, idFrom);
+        statement.setLong(2, idTo);
+        statement.setLong(3, idReply);
+        return statement.executeQuery();
+    }
+
+    public Iterable<MessageDTO> getMessages(Long idFrom, Long idTo){
+        String query = """
+            SELECT M.*, MU.id_to
+            FROM MESSAGES M
+            INNER JOIN MESSAGES_TO_USERS MU ON M.id = MU.id_message AND ((M.id_from = ? OR M.id_from = ?) AND (MU.id_to = ? OR MU.id_to = ?))""";
+        Optional.ofNullable(idFrom).orElseThrow(() -> new IllegalArgumentException("IdFrom cannot be null"));
+        Optional.ofNullable(idTo).orElseThrow(() -> new IllegalArgumentException("IdTo cannot be null"));
+
+        try(Connection conn = DriverManager.getConnection(databaseURL, databaseUser, databasePassword)){
+            PreparedStatement statement = conn.prepareStatement(query);
+            statement.setLong(1, idFrom);
+            statement.setLong(2, idTo);
+            statement.setLong(3, idFrom);
+            statement.setLong(4, idTo);
+            ResultSet resultSet = statement.executeQuery();
+            List<MessageDTO> lst = new ArrayList<>();
+
+            while (resultSet.next()) {
+                Long idMessage = resultSet.getLong("id");
+                Long idFromUser = resultSet.getLong("id_from");
+                Long idToUser = resultSet.getLong("id_to");
+                String text = resultSet.getString("message");
+                Timestamp temp = resultSet.getTimestamp("date");
+                LocalDateTime date = LocalDateTime.ofInstant(Instant.ofEpochMilli(temp.getTime()), ZoneOffset.UTC);
+                Long idReply = resultSet.getLong("id_reply");
+
+                if(idReply == null){
+                    ResultSet resultSetReply = getReplyMessageResultSet(idReply, idFrom, idTo, conn);
+                    Long idMessageReply = resultSetReply.getLong("id");
+                    String textReply = resultSetReply.getString("message");
+                    Timestamp tempReply = resultSet.getTimestamp("date");
+                    LocalDateTime dateReply = LocalDateTime.ofInstant(Instant.ofEpochMilli(tempReply.getTime()), ZoneOffset.UTC);
+                    lst.add(new MessageDTO(idMessage, idFromUser, idToUser, text, date, idMessageReply, textReply, dateReply));
+                }
+                else{
+                    lst.add(new MessageDTO(idMessage, idFromUser, idToUser, text, date));
+                }
+            }
+
+            return lst;
+        } catch (SQLException e) {
+            throw new DatabaseConnectionException();
+        }
     }
 }
