@@ -3,6 +3,7 @@ package controller;
 import domain.dto.ControllerDTO;
 import domain.dto.MessageDTO;
 import domain.exceptions.SetupControllerException;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -51,8 +52,18 @@ public class MessageController extends AbstractController {
     }
 
     public void setBackgroundColor(String color){
-        String style = "-fx-background-radius: 10px; -fx-background-color: " + color;
-        messageHBox.setStyle(style);
+        messageHBox.setStyle("-fx-background-radius: 10px; -fx-background-color: " + color);
+    }
+
+    public ToggleButton getToggleButton() {
+        return toggleButton;
+    }
+
+    @FXML
+    private void handleToggleButtonAction(ActionEvent event) {
+        if(toggleButton.isSelected()){
+            setBackgroundColor("#fcba03");
+        }
     }
 
     @Override
@@ -69,10 +80,12 @@ public class MessageController extends AbstractController {
         if(controllerDTO.getMessageType() == MessageType.MESSAGE) {
             text = new Text(messageDTO.getText());
             dateLabel.setText(messageDTO.getDate().format(Constants.DATE_FORMATTER));
+            toggleButton.setText(messageDTO.getIdMessage().toString());
         }
         else {
             text = new Text(messageDTO.getTextReply());
             dateLabel.setText(messageDTO.getDateReply().format(Constants.DATE_FORMATTER));
+            toggleButton.setText(messageDTO.getIdMessageReply().toString());
         }
         text.setFill(Color.WHITE);
         textFlow.setMaxWidth(width * 0.80 * 0.70 * 0.60);

@@ -24,7 +24,7 @@
                   <Insets bottom="5.0" top="5.0" />
                </padding>
             </HBox>
-            <ToggleButton fx:id="toggleButton" mnemonicParsing="false" opacity="0.0" text="ToggleButton">
+            <ToggleButton fx:id="toggleButton" onAction="#handleToggleButtonAction" mnemonicParsing="false" opacity="0.0" text="ToggleButton">
                <StackPane.margin>
                   <Insets />
                </StackPane.margin></ToggleButton>

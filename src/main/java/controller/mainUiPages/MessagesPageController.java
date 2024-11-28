@@ -1,9 +1,6 @@
 package controller.mainUiPages;
 
-import controller.AbstractController;
-import controller.Controller;
-import controller.MessageAlert;
-import controller.MessageController;
+import controller.*;
 import domain.dto.ControllerDTO;
 import domain.dto.FriendDTO;
 import domain.dto.MessageDTO;
@@ -22,12 +19,8 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import ui.MainApplication;
-import utils.FriendButtonType;
 import utils.MessageType;
 import utils.events.Event;
 import utils.events.EventType;
@@ -36,7 +29,6 @@ import utils.events.MessageChangeEvent;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -48,7 +40,11 @@ public class MessagesPageController extends AbstractController implements Observ
     private ObservableList<FriendDTO> friendsList = FXCollections.observableArrayList();
     private ObservableList<MessageDTO> messageList = FXCollections.observableArrayList();
     private Long connectedUserId;
+
     private Long selectedFriendId;
+
+    private Long selectedMessageId = null;
+    private String previousMessageStyle = null;
 
     @FXML
     private BorderPane root;
@@ -71,7 +67,7 @@ public class MessagesPageController extends AbstractController implements Observ
     @FXML
     private ImageView friendIcon;
 
-    private ToggleGroup toggleGroup = new ToggleGroup();
+    private ToggleGroup toggleGroupFriends = new ToggleGroup(), toggleGroupMessages = new ToggleGroup();
 
     @FXML
     public void initialize() {
@@ -87,9 +83,39 @@ public class MessagesPageController extends AbstractController implements Observ
         friendsList.addListener((ListChangeListener<FriendDTO>) change -> {
             loadFriends(friendsList);
         });
-
         messageList.addListener((ListChangeListener<MessageDTO>) change -> {
             loadMessages(messageList);
+        });
+
+        toggleGroupFriends.selectedToggleProperty().addListener((_, oldValue, newValue) -> {
+            if (newValue != null) { // if a new button has been selected
+                String[] splitString = ((ToggleButton) newValue).getText().split(", ");
+                selectedFriendId = Long.parseLong(splitString[0]);
+                userNameLabel.setText(splitString[1]);
+                friendIcon.setVisible(true);
+                userNameLabel.setVisible(true);
+                setMessageList();
+            }
+            if(oldValue != null && newValue != null) { // if a new button has been selected, and it's different from previous selected one
+                ((ToggleButton) oldValue).getParent().setStyle("-fx-background-color: #eb1c6f");
+            }
+            if (oldValue != null && newValue == null) { // if the same button is pressed
+                oldValue.setSelected(true);
+            }
+        });
+        toggleGroupMessages.selectedToggleProperty().addListener((_, oldValue, newValue) -> {
+            if(oldValue != null && newValue != null){
+                ((StackPane) ((ToggleButton) oldValue).getParent()).getChildren().getFirst().setStyle(previousMessageStyle);
+            }
+            if(oldValue != null && newValue == null){
+                ((StackPane) ((ToggleButton) oldValue).getParent()).getChildren().getFirst().setStyle(previousMessageStyle);
+                previousMessageStyle = null;
+                selectedMessageId = null;
+            }
+            if (newValue != null) {
+                previousMessageStyle = ((StackPane) ((ToggleButton) newValue).getParent()).getChildren().getFirst().getStyle();
+                selectedMessageId = Long.parseLong(((ToggleButton) newValue).getText());
+            }
         });
     }
 
@@ -97,7 +123,7 @@ public class MessagesPageController extends AbstractController implements Observ
     private void handleSendButton(ActionEvent event) {
         try {
             String message = messageTextField.getText();
-            service.addMessage(connectedUserId, Arrays.asList(selectedFriendId), message, LocalDateTime.now(), null);
+            service.addMessage(connectedUserId, Arrays.asList(selectedFriendId), message, LocalDateTime.now(), selectedMessageId);
             messageTextField.clear();
         }
         catch (MyException e) {
@@ -128,9 +154,7 @@ public class MessagesPageController extends AbstractController implements Observ
 
                 Controller controller = fxmlLoader.getController();
                 controller.setupController(new ControllerDTO(service, stage, msg, MessageType.MESSAGE));
-
-                VBox vBoxContainingMessageAndReply = new VBox();
-                HBox hBoxContainingVBoxMessageAndReply = new HBox(vBoxContainingMessageAndReply);
+                ((MessageController) controller).getToggleButton().setToggleGroup(toggleGroupMessages);
 
                 if(msg.getIdFrom().equals(connectedUserId)){
                     ((MessageController) controller).setAligment(Pos.CENTER_RIGHT);
@@ -142,11 +166,15 @@ public class MessagesPageController extends AbstractController implements Observ
                 }
 
                 if (msg.getIdMessageReply() != null){
+                    VBox vBoxContainingMessageAndReply = new VBox();
+                    HBox hBoxContainingVBoxMessageAndReply = new HBox(vBoxContainingMessageAndReply);
+
                     FXMLLoader fxmlLoaderReply = new FXMLLoader(MainApplication.class.getResource("message.fxml"));
                     Node messageReplyUi = fxmlLoaderReply.load();
 
                     Controller controllerReply = fxmlLoaderReply.getController();
                     controllerReply.setupController(new ControllerDTO(service, stage, msg, MessageType.REPLY));
+                    ((MessageController) controllerReply).getToggleButton().setToggleGroup(toggleGroupMessages);
 
                     vBoxContainingMessageAndReply.getChildren().add(messageReplyUi);
                     vBoxContainingMessageAndReply.getChildren().add(messageUi);
@@ -182,26 +210,10 @@ public class MessagesPageController extends AbstractController implements Observ
                 Node friendUi = fxmlLoader.load();
                 ((AnchorPane) friendUi).setPrefWidth(width * 0.80 * 0.30 - 2);
 
-                ((ToggleButton) ((AnchorPane) friendUi).getChildren().get(2)).setToggleGroup(toggleGroup);
-                toggleGroup.selectedToggleProperty().addListener((_, oldValue, newValue) -> {
-                    if (newValue != null) { // if a new button has been selected
-                        String[] splitString = ((ToggleButton) newValue).getText().split(", ");
-                        selectedFriendId = Long.parseLong(splitString[0]);
-                        userNameLabel.setText(splitString[1]);
-                        friendIcon.setVisible(true);
-                        userNameLabel.setVisible(true);
-                        setMessageList();
-                    }
-                    if(oldValue != null && newValue != null) { // if a new button has been selected and it's different from previous selected one
-                        ((ToggleButton) oldValue).getParent().setStyle("-fx-background-color: #eb1c6f");
-                    }
-                    if (oldValue != null && newValue == null) { // if the same button is pressed
-                        oldValue.setSelected(true);
-                    }
-                });
-
                 Controller controller = fxmlLoader.getController();
                 controller.setupController(new ControllerDTO(service, stage, new UserDTO(connectedUserId), friend));
+                ((MessagesFriendController) controller).getToggleButton().setToggleGroup(toggleGroupFriends);
+
                 friendsListVBox.getChildren().add(friendUi);
             } catch (IOException e) {
                 e.printStackTrace();

@@ -32,6 +32,10 @@ public class MessagesFriendController extends AbstractController {
         }
     }
 
+    public ToggleButton getToggleButton() {
+        return toggleButton;
+    }
+
     @Override
     public void setupController(ControllerDTO controllerDTO) {
         service = controllerDTO.getService();
