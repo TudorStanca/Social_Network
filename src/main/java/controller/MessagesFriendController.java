@@ -27,8 +27,10 @@ public class MessagesFriendController extends AbstractController {
 
     @FXML
     private void handleToggleButton(ActionEvent event) {
-        if(toggleButton.isSelected()) {
+        if (toggleButton.isSelected()) {
             root.setStyle("-fx-background-color: #eb3296");
+        } else {
+            root.setStyle("-fx-background-color: #eb1c6f");
         }
     }
 

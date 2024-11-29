@@ -18,7 +18,7 @@ public class Message extends Entity<Long> {
         this.date = date;
     }
 
-    public Message(Long id_from, String message, LocalDateTime date){
+    public Message(Long id_from, String message, LocalDateTime date) {
         this.id_from = id_from;
         this.message = message;
         this.date = date;

@@ -13,6 +13,11 @@
                <children>
                   <Label text="Search" />
                   <TextField fx:id="searchTextField" />
+                  <Button onAction="#handleBroadcastButton" mnemonicParsing="false" text="Broadcast">
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                  </Button>
                </children>
                <padding>
                   <Insets left="15.0" />

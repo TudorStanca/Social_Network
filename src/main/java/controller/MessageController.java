@@ -42,16 +42,16 @@ public class MessageController extends AbstractController {
 
     @FXML
     public void initialize() {
-        textFlow.setPadding(new Insets(5,10,5,10));
+        textFlow.setPadding(new Insets(5, 10, 5, 10));
         toggleButton.prefWidthProperty().bind(messageHBox.widthProperty());
         hBox.setPrefWidth(width * 0.80 * 0.70);
     }
 
-    public void setAligment(Pos value){
+    public void setAligment(Pos value) {
         hBox.setAlignment(value);
     }
 
-    public void setBackgroundColor(String color){
+    public void setBackgroundColor(String color) {
         messageHBox.setStyle("-fx-background-radius: 10px; -fx-background-color: " + color);
     }
 
@@ -61,7 +61,7 @@ public class MessageController extends AbstractController {
 
     @FXML
     private void handleToggleButtonAction(ActionEvent event) {
-        if(toggleButton.isSelected()){
+        if (toggleButton.isSelected()) {
             setBackgroundColor("#fcba03");
         }
     }
@@ -77,12 +77,11 @@ public class MessageController extends AbstractController {
         Optional.ofNullable(messageDTO).orElseThrow(() -> new SetupControllerException("MessageDTO is null in message friend controller"));
 
         Text text;
-        if(controllerDTO.getMessageType() == MessageType.MESSAGE) {
+        if (controllerDTO.getMessageType() == MessageType.MESSAGE) {
             text = new Text(messageDTO.getText());
             dateLabel.setText(messageDTO.getDate().format(Constants.DATE_FORMATTER));
             toggleButton.setText(messageDTO.getIdMessage().toString());
-        }
-        else {
+        } else {
             text = new Text(messageDTO.getTextReply());
             dateLabel.setText(messageDTO.getDateReply().format(Constants.DATE_FORMATTER));
             toggleButton.setText(messageDTO.getIdMessageReply().toString());

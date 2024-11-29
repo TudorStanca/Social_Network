@@ -6,6 +6,7 @@ import domain.dto.FriendDTO;
 import domain.dto.MessageDTO;
 import domain.dto.UserDTO;
 import domain.exceptions.MyException;
+import domain.exceptions.NoFriendSelectedException;
 import domain.exceptions.SetupControllerException;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -20,6 +21,7 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
+import javafx.stage.Stage;
 import ui.MainApplication;
 import utils.MessageType;
 import utils.events.Event;
@@ -29,13 +31,13 @@ import utils.events.MessageChangeEvent;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.StreamSupport;
 
-public class MessagesPageController extends AbstractController implements ObserverController{
+public class MessagesPageController extends AbstractController implements ObserverController {
 
     private ObservableList<FriendDTO> friendsList = FXCollections.observableArrayList();
     private ObservableList<MessageDTO> messageList = FXCollections.observableArrayList();
@@ -73,9 +75,14 @@ public class MessagesPageController extends AbstractController implements Observ
     public void initialize() {
         leftVBox.setPrefSize(width * 0.80 * 0.30, height);
         leftScrollPane.setPrefHeight(height);
+        leftScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        leftScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        friendsListVBox.prefWidthProperty().bind(leftScrollPane.widthProperty());
         rightVBox.setPrefSize(width * 0.80 * 0.70, height);
         rightScrollPane.setPrefHeight(height - 177);
-        messagesVBox.setPrefWidth(width * 0.80 * 0.70 - 23);
+        rightScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        rightScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        messagesVBox.prefWidthProperty().bind(rightScrollPane.widthProperty());
 
         messageTextField.setPrefWidth(width * 0.80 * 0.70 - 100);
 
@@ -96,7 +103,7 @@ public class MessagesPageController extends AbstractController implements Observ
                 userNameLabel.setVisible(true);
                 setMessageList();
             }
-            if(oldValue != null && newValue != null) { // if a new button has been selected, and it's different from previous selected one
+            if (oldValue != null && newValue != null) { // if a new button has been selected, and it's different from previous selected one
                 ((ToggleButton) oldValue).getParent().setStyle("-fx-background-color: #eb1c6f");
             }
             if (oldValue != null && newValue == null) { // if the same button is pressed
@@ -104,10 +111,10 @@ public class MessagesPageController extends AbstractController implements Observ
             }
         });
         toggleGroupMessages.selectedToggleProperty().addListener((_, oldValue, newValue) -> {
-            if(oldValue != null && newValue != null){
+            if (oldValue != null && newValue != null) {
                 ((StackPane) ((ToggleButton) oldValue).getParent()).getChildren().getFirst().setStyle(previousMessageStyle);
             }
-            if(oldValue != null && newValue == null){
+            if (oldValue != null && newValue == null) {
                 ((StackPane) ((ToggleButton) oldValue).getParent()).getChildren().getFirst().setStyle(previousMessageStyle);
                 previousMessageStyle = null;
                 selectedMessageId = null;
@@ -122,12 +129,32 @@ public class MessagesPageController extends AbstractController implements Observ
     @FXML
     private void handleSendButton(ActionEvent event) {
         try {
+            if (selectedFriendId == null) {
+                throw new NoFriendSelectedException("No friend selected");
+            }
+
             String message = messageTextField.getText();
-            service.addMessage(connectedUserId, Arrays.asList(selectedFriendId), message, LocalDateTime.now(), selectedMessageId);
+            service.addMessage(connectedUserId, Collections.singletonList(selectedFriendId), message, LocalDateTime.now(), selectedMessageId);
             messageTextField.clear();
-        }
-        catch (MyException e) {
+            selectedMessageId = null;
+        } catch (MyException e) {
             MessageAlert.showError(stage, e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleBroadcastButton(ActionEvent event) {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("broadcast-message.fxml"));
+
+            Stage broadcastMessageStage = initNewView(fxmlLoader, "Broadcast a message");
+
+            Controller controller = fxmlLoader.getController();
+            controller.setupController(new ControllerDTO(service, broadcastMessageStage, new UserDTO(connectedUserId)));
+
+            broadcastMessageStage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -145,10 +172,10 @@ public class MessagesPageController extends AbstractController implements Observ
         loadFriends(friendsList.filtered(p1));
     }
 
-    private void loadMessages(List<MessageDTO> lst){
+    private void loadMessages(List<MessageDTO> lst) {
         messagesVBox.getChildren().clear();
         for (MessageDTO msg : lst) {
-            try{
+            try {
                 FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("message.fxml"));
                 Node messageUi = fxmlLoader.load();
 
@@ -156,16 +183,15 @@ public class MessagesPageController extends AbstractController implements Observ
                 controller.setupController(new ControllerDTO(service, stage, msg, MessageType.MESSAGE));
                 ((MessageController) controller).getToggleButton().setToggleGroup(toggleGroupMessages);
 
-                if(msg.getIdFrom().equals(connectedUserId)){
+                if (msg.getIdFrom().equals(connectedUserId)) {
                     ((MessageController) controller).setAligment(Pos.CENTER_RIGHT);
                     ((MessageController) controller).setBackgroundColor("#005c4b");
-                }
-                else{
+                } else {
                     ((MessageController) controller).setAligment(Pos.CENTER_LEFT);
                     ((MessageController) controller).setBackgroundColor("#363636");
                 }
 
-                if (msg.getIdMessageReply() != null){
+                if (msg.getIdMessageReply() != null) {
                     VBox vBoxContainingMessageAndReply = new VBox();
                     HBox hBoxContainingVBoxMessageAndReply = new HBox(vBoxContainingMessageAndReply);
 
@@ -179,24 +205,21 @@ public class MessagesPageController extends AbstractController implements Observ
                     vBoxContainingMessageAndReply.getChildren().add(messageReplyUi);
                     vBoxContainingMessageAndReply.getChildren().add(messageUi);
 
-                    if(msg.getIdFrom().equals(connectedUserId)){
+                    if (msg.getIdFrom().equals(connectedUserId)) {
                         ((MessageController) controllerReply).setAligment(Pos.CENTER_RIGHT);
                         VBox.setMargin(messageReplyUi, new Insets(0, 10, 0, 0));
-                        ((MessageController) controllerReply).setBackgroundColor("#ff0000");
-                    }
-                    else{
+                    } else {
                         ((MessageController) controller).setAligment(Pos.CENTER_LEFT);
                         VBox.setMargin(messageReplyUi, new Insets(0, 0, 0, 10));
-                        ((MessageController) controllerReply).setBackgroundColor("#ff0000");
+
                     }
+                    ((MessageController) controllerReply).setBackgroundColor("#ff0000");
 
                     messagesVBox.getChildren().add(hBoxContainingVBoxMessageAndReply);
-                }
-                else {
+                } else {
                     messagesVBox.getChildren().add(messageUi);
                 }
-            }
-            catch (IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -208,7 +231,7 @@ public class MessagesPageController extends AbstractController implements Observ
             try {
                 FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("messages-friend.fxml"));
                 Node friendUi = fxmlLoader.load();
-                ((AnchorPane) friendUi).setPrefWidth(width * 0.80 * 0.30 - 2);
+                ((AnchorPane) friendUi).prefWidthProperty().bind(friendsListVBox.widthProperty());
 
                 Controller controller = fxmlLoader.getController();
                 controller.setupController(new ControllerDTO(service, stage, new UserDTO(connectedUserId), friend));
@@ -241,16 +264,23 @@ public class MessagesPageController extends AbstractController implements Observ
 
     @Override
     public void update(Event e) {
-        if(e instanceof FriendChangeEvent) {
-            FriendChangeEvent event = (FriendChangeEvent) e;
-            if (event.getEventType() == EventType.ACCEPT_REQUEST || event.getEventType() == EventType.DELETE_REQUEST) {
+        if (e instanceof FriendChangeEvent event) {
+            if (event.getEventType() != EventType.CREATE_MESSAGE) {
                 setFriendsList();
+                if (event.getEventType() == EventType.DELETE_REQUEST) {
+                    if (event.getDeletedFriend().getFirstFriend().equals(selectedFriendId) || event.getDeletedFriend().getSecondFriend().equals(selectedFriendId)) {
+                        selectedFriendId = null;
+                        friendIcon.setVisible(false);
+                        userNameLabel.setVisible(false);
+                        messagesVBox.getChildren().clear();
+                    }
+                }
             }
-        }
-        else if(e instanceof MessageChangeEvent){
-            MessageChangeEvent event = (MessageChangeEvent) e;
+        } else if (e instanceof MessageChangeEvent event) {
             if (event.getType() == EventType.CREATE_MESSAGE) {
-                setMessageList();
+                if (selectedFriendId != null) {
+                    setMessageList();
+                }
             }
         }
     }

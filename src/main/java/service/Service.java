@@ -239,7 +239,7 @@ public class Service implements Observable<Event> {
             throw new IdNotFoundException(id);
         }
 
-        notifyObservers(new FriendChangeEvent(EventType.DELETE_REQUEST));
+        notifyObservers(new FriendChangeEvent(id, friend.get(), EventType.DELETE_REQUEST));
 
         return friend.get();
     }

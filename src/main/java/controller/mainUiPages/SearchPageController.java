@@ -43,6 +43,9 @@ public class SearchPageController extends AbstractController implements Observer
 
     @FXML
     public void initialize() {
+        searchScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        searchScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+
         searchTextField.textProperty().addListener(o -> handleFilter());
         candidateFriendsList.addListener((ListChangeListener<FriendDTO>) change -> {
             loadCandidateFriends(candidateFriendsList);

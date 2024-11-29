@@ -46,8 +46,8 @@ public class UserInterfaceController extends AbstractController implements Obser
     @FXML
     private ImageView notificationImage;
 
-    private void setNotificationIcon(){
-        if(homeVisited){
+    private void setNotificationIcon() {
+        if (homeVisited) {
             homeVisited = false;
             notificationImage.setVisible(false);
         }
@@ -189,7 +189,7 @@ public class UserInterfaceController extends AbstractController implements Obser
 
     @Override
     public void update(Event e) {
-        if(e instanceof FriendChangeEvent) {
+        if (e instanceof FriendChangeEvent) {
             FriendChangeEvent event = (FriendChangeEvent) e;
             if (event.getEventType() == EventType.CREATE_REQUEST && event.getId().equals(connectedUser.getId())) {
                 notificationImage.setVisible(true);

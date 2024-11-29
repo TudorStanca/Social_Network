@@ -2,7 +2,6 @@ package controller.mainUiPages;
 
 import controller.AbstractController;
 import controller.Controller;
-import controller.UserInterfaceController;
 import domain.dto.ControllerDTO;
 import domain.dto.FriendDTO;
 import domain.dto.UserDTO;
@@ -48,7 +47,11 @@ public class HomePageController extends AbstractController implements ObserverCo
         leftVBox.setPrefWidth(borderPaneWidth * 0.50);
         rightVBox.setPrefWidth(borderPaneWidth * 0.50);
         leftScrollPane.setPrefHeight(height);
+        leftScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        leftScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         rightScrollPane.setPrefHeight(height);
+        rightScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        rightScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 
         friendRequestsList.addListener((ListChangeListener<FriendDTO>) change -> {
             loadFriends(friendRequestsList, innerRightVBox, FriendButtonType.ACCEPT);

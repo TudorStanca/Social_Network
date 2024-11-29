@@ -25,7 +25,7 @@ public class MessageDTO {
         this.dateReply = dateReply;
     }
 
-    public MessageDTO(Long idMessage, Long idFrom, Long idTo, String text, LocalDateTime date){
+    public MessageDTO(Long idMessage, Long idFrom, Long idTo, String text, LocalDateTime date) {
         this.idMessage = idMessage;
         this.idFrom = idFrom;
         this.idTo = idTo;
