@@ -4,6 +4,8 @@ import domain.Message;
 import domain.User;
 import domain.dto.MessageDTO;
 import domain.exceptions.DatabaseConnectionException;
+import utils.paging.Page;
+import utils.paging.Pageable;
 
 import java.sql.*;
 import java.time.Instant;

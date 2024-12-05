@@ -2,6 +2,8 @@ package repository.database;
 
 import domain.User;
 import domain.exceptions.DatabaseConnectionException;
+import utils.paging.Page;
+import utils.paging.Pageable;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

@@ -13,12 +13,15 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
 import ui.MainApplication;
 import utils.FriendButtonType;
 import utils.events.Event;
 import utils.events.EventType;
 import utils.events.FriendChangeEvent;
+import utils.paging.Page;
+import utils.paging.Pageable;
 
 import java.io.IOException;
 import java.util.List;
@@ -32,6 +35,10 @@ public class HomePageController extends AbstractController implements ObserverCo
     private ObservableList<FriendDTO> friendRequestsList = FXCollections.observableArrayList();
     private ObservableList<FriendDTO> friendsList = FXCollections.observableArrayList();
     private Long connectedUserId;
+
+    private int friendsPageSize = (int) Math.ceil(height / 100d) - 1;
+    private int friendsCurrentPage = 0;
+    private int friendsMaxPage = 0;
 
     @FXML
     private VBox leftVBox, rightVBox;
@@ -60,6 +67,17 @@ public class HomePageController extends AbstractController implements ObserverCo
         friendsList.addListener((ListChangeListener<FriendDTO>) change -> {
             loadFriends(friendsList, innerLeftVBox, FriendButtonType.DELETE);
         });
+
+        leftScrollPane.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.N && friendsCurrentPage + 1 != friendsMaxPage) {
+                friendsCurrentPage++;
+                setFriendsList();
+            }
+            else if(event.getCode() == KeyCode.B && friendsCurrentPage != 0) {
+                friendsCurrentPage--;
+                setFriendsList();
+            }
+        });
     }
 
     private void loadFriends(List<FriendDTO> lst, VBox pane, FriendButtonType friendButtonType) {
@@ -82,7 +100,9 @@ public class HomePageController extends AbstractController implements ObserverCo
     }
 
     private void setFriendsList() {
-        friendsList.setAll((StreamSupport.stream(service.findUserFriends(connectedUserId).spliterator(), false).toList()));
+        Page<FriendDTO> page = service.findUserFriends(new Pageable(friendsCurrentPage, friendsPageSize), connectedUserId);
+        friendsMaxPage = (int) Math.ceil((double) page.getTotalNumberOfElements() / (double) friendsPageSize);
+        friendsList.setAll((StreamSupport.stream(page.getElementsOnPage().spliterator(), false).toList()));
     }
 
     @Override

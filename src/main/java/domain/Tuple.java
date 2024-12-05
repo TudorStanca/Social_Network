@@ -4,13 +4,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 
-public class Tuple<E> {
+public class Tuple<E1, E2> {
 
     @JsonProperty("first")
-    private E first;
+    private E1 first;
 
     @JsonProperty("second")
-    private E second;
+    private E2 second;
 
     /**
      * Default constructor for JSON
@@ -24,35 +24,25 @@ public class Tuple<E> {
      * @param first  the first element of the tuple
      * @param second the second element of the tuple
      */
-    public Tuple(E first, E second) {
+    public Tuple(E1 first, E2 second) {
         this.first = first;
         this.second = second;
     }
 
-    public E getFirst() {
+    public E1 getFirst() {
         return first;
     }
 
-    public void setFirst(E first) {
+    public void setFirst(E1 first) {
         this.first = first;
     }
 
-    public E getSecond() {
+    public E2 getSecond() {
         return second;
     }
 
-    public void setSecond(E second) {
+    public void setSecond(E2 second) {
         this.second = second;
-    }
-
-    /**
-     * Verify if tuple contains an entity
-     *
-     * @param entity The entity that is checked
-     * @return True / False
-     */
-    public boolean hasEntity(E entity) {
-        return first.equals(entity) || second.equals(entity);
     }
 
     @Override
@@ -68,7 +58,7 @@ public class Tuple<E> {
         if (obj == null || obj.getClass() != this.getClass()) {
             return false;
         }
-        Tuple<?> other = (Tuple<?>) obj;
+        Tuple<?, ?> other = (Tuple<?, ?>) obj;
         return first.equals(other.first) && second.equals(other.second) || first.equals(other.second) && second.equals(other.first);
     }
 

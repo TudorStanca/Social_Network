@@ -9,7 +9,7 @@ public class FriendValidator implements Validator<Friend> {
     public void validate(Friend entity) throws ValidationException {
         String errors = "";
 
-        if (entity.getFriendship().getFirst().equals(entity.getFriendship().getSecond())) {
+        if (entity.getFirstFriend().equals(entity.getSecondFriend())) {
             errors += "A user can't be friends with themselves\n";
         }
 

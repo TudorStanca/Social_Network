@@ -3,12 +3,15 @@ package repository.database;
 import domain.Friend;
 import domain.dto.FriendDTO;
 import domain.exceptions.DatabaseConnectionException;
+import utils.paging.Page;
+import utils.paging.Pageable;
 
 import java.sql.*;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -112,18 +115,22 @@ public class FriendDBRepository extends AbstractDBRepository<Long, Friend> {
         }
     }
 
+    private FriendDTO getFriendDTO(ResultSet resultSet) throws SQLException {
+        Long idFriendship = resultSet.getLong(1);
+        Long idFriend = resultSet.getLong(2);
+        String firstName = resultSet.getString("first_name");
+        String lastName = resultSet.getString("last_name");
+        Timestamp temp = resultSet.getTimestamp("friends_from");
+        LocalDateTime friendsFrom = LocalDateTime.ofInstant(Instant.ofEpochMilli(temp.getTime()), ZoneOffset.UTC);
+        return new FriendDTO(idFriendship, idFriend, firstName, lastName, friendsFrom);
+    }
+
     private Iterable<FriendDTO> getIterableListFriendDTO(PreparedStatement statement) throws SQLException {
         ResultSet resultSet = statement.executeQuery();
         List<FriendDTO> lst = new ArrayList<>();
         if (resultSet.next()) {
             do {
-                Long idFriendship = resultSet.getLong(1);
-                Long idFriend = resultSet.getLong(2);
-                String firstName = resultSet.getString("first_name");
-                String lastName = resultSet.getString("last_name");
-                Timestamp temp = resultSet.getTimestamp("friends_from");
-                LocalDateTime friendsFrom = LocalDateTime.ofInstant(Instant.ofEpochMilli(temp.getTime()), ZoneOffset.UTC);
-                lst.add(new FriendDTO(idFriendship, idFriend, firstName, lastName, friendsFrom));
+                lst.add(getFriendDTO(resultSet));
             } while (resultSet.next());
         }
         return lst;
@@ -161,6 +168,56 @@ public class FriendDBRepository extends AbstractDBRepository<Long, Friend> {
             statement.setLong(3, userId);
             return getIterableListFriendDTO(statement);
         } catch (SQLException e) {
+            throw new DatabaseConnectionException();
+        }
+    }
+
+    private int countFriends(Connection conn, Long userId) throws SQLException {
+        String query = """
+            SELECT COUNT(*)
+            FROM USERS U
+            INNER JOIN FRIENDS F on U.id = F.id_user_1 OR U.id = F.id_user_2
+            WHERE (F.id_user_1 = ? OR F.id_user_2 = ?) AND U.id != ? AND F.status = TRUE""";
+        Optional.ofNullable(userId).orElseThrow(() -> new IllegalArgumentException("Id cannot be null"));
+
+        PreparedStatement statement = conn.prepareStatement(query);
+        statement.setLong(1, userId);
+        statement.setLong(2, userId);
+        statement.setLong(3, userId);
+        ResultSet resultSet = statement.executeQuery();
+        if (resultSet.next()) {
+            return resultSet.getInt("count");
+        }
+        return 0;
+    }
+
+    private Iterable<FriendDTO> findFriends(Connection conn, Pageable pageable, Long userId) throws SQLException {
+        String query = """
+                SELECT F.id, U.id, U.first_name, U.last_name, F.friends_from
+                FROM USERS U
+                INNER JOIN FRIENDS F on U.id = F.id_user_1 OR U.id = F.id_user_2
+                WHERE (F.id_user_1 = ? OR F.id_user_2 = ?) AND U.id != ? AND F.status = TRUE
+                LIMIT ? OFFSET ?""";
+        Optional.ofNullable(userId).orElseThrow(() -> new IllegalArgumentException("Id cannot be null"));
+
+        PreparedStatement statement = conn.prepareStatement(query);
+        statement.setLong(1, userId);
+        statement.setLong(2, userId);
+        statement.setLong(3, userId);
+        statement.setInt(4, pageable.getPageSize());
+        statement.setInt(5, pageable.getPageSize() * pageable.getPageNumber());
+        return getIterableListFriendDTO(statement);
+    }
+
+    public Page<FriendDTO> findAllFriendsOnPage(Pageable pageable, Long userId) {
+        try(Connection conn = DriverManager.getConnection(databaseURL, databaseUser, databasePassword)){
+            int totalNumberOfFriends = countFriends(conn, userId);
+            if(totalNumberOfFriends == 0){
+                return new Page<>(Collections.emptyList(), totalNumberOfFriends);
+            }
+            return new Page<>(findFriends(conn, pageable, userId), totalNumberOfFriends);
+        }
+        catch (SQLException e) {
             throw new DatabaseConnectionException();
         }
     }

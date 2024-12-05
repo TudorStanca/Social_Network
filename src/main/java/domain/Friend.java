@@ -9,7 +9,7 @@ import java.util.Optional;
 public class Friend extends Entity<Long> {
 
     @JsonProperty("friendship")
-    private Tuple<Long> friendship;
+    private Tuple<Long, Long> friendship;
 
     private boolean status;
 
@@ -33,10 +33,6 @@ public class Friend extends Entity<Long> {
         this.friendsFrom = friendsFrom;
     }
 
-    public Tuple<Long> getFriendship() {
-        return friendship;
-    }
-
     public Long getFirstFriend() {
         return friendship.getFirst();
     }
@@ -45,20 +41,20 @@ public class Friend extends Entity<Long> {
         return friendship.getSecond();
     }
 
+    public void setFirstFriend(Long id1) {
+        friendship.setFirst(id1);
+    }
+
+    public void setSecondFriend(Long id2) {
+        friendship.setSecond(id2);
+    }
+
     public boolean getStatus() {
         return status;
     }
 
     public LocalDateTime getFriendsFrom() {
         return friendsFrom;
-    }
-
-    public boolean hasFriend(Long id) {
-        return friendship.hasEntity(id);
-    }
-
-    public void setFriendship(Tuple<Long> friendship) {
-        this.friendship = friendship;
     }
 
     public void setStatus(boolean status) {

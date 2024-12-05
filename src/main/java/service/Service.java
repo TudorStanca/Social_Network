@@ -21,6 +21,8 @@ import utils.events.FriendChangeEvent;
 import utils.events.MessageChangeEvent;
 import utils.observer.Observable;
 import utils.observer.Observer;
+import utils.paging.Page;
+import utils.paging.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -140,6 +142,10 @@ public class Service implements Observable<Event> {
 
     public Iterable<FriendDTO> findUserFriends(Long userId) {
         return ((FriendDBRepository) repoFriend).findFriends(userId);
+    }
+
+    public Page<FriendDTO> findUserFriends(Pageable pageable, Long userId) {
+        return ((FriendDBRepository) repoFriend).findAllFriendsOnPage(pageable, userId);
     }
 
     public Iterable<MessageDTO> findMessages(Long userId, Long friendId) {

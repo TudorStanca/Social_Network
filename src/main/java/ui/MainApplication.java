@@ -24,9 +24,6 @@ import service.Service;
 
 import java.io.IOException;
 
-//TODO: ADAUGARE TRIGGER IN BAZA DE DATE PT STERGEREA UNEI PRIETENII
-//TODO: ADAUGARE TRIGGER IN BAZA DE DATE PT VERIFICARE DACA USERII SUNT PRIETENI DE LA MESAJE
-
 public class MainApplication extends Application {
 
     private Service service;
