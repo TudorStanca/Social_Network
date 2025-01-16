@@ -6,15 +6,13 @@ import domain.Message;
 import domain.User;
 import domain.dto.FriendDTO;
 import domain.dto.MessageDTO;
-import domain.exceptions.IdNotFoundException;
-import domain.exceptions.ObjectAlreadyInRepositoryException;
-import domain.exceptions.UserNotFoundInDatabase;
-import domain.exceptions.ValidationException;
+import domain.exceptions.*;
 import domain.validators.Validator;
 import repository.Repository;
 import repository.database.FriendDBRepository;
 import repository.database.MessageDBRepository;
 import repository.database.UserDBRepository;
+import utils.PasswordHashing;
 import utils.events.Event;
 import utils.events.EventType;
 import utils.events.FriendChangeEvent;
@@ -25,7 +23,11 @@ import utils.paging.Page;
 import utils.paging.Pageable;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 public class Service implements Observable<Event> {
@@ -125,9 +127,12 @@ public class Service implements Observable<Event> {
     }
 
     public User findUserByEmailPassword(String email, String password) {
-        Optional<User> user = ((UserDBRepository) repoUser).findOne(email, password);
+        Optional<User> user = ((UserDBRepository) repoUser).findOne(email);
         if (user.isEmpty()) {
             throw new UserNotFoundInDatabase(email);
+        }
+        if(!PasswordHashing.isExpectedPassword(password, user.get().getPassword(), user.get().getSalt())) {
+            throw new InvalidPassword();
         }
         return user.get();
     }
@@ -162,7 +167,9 @@ public class Service implements Observable<Event> {
      * @throws ObjectAlreadyInRepositoryException if the user is already in repository
      */
     public User addUser(String firstname, String lastname, String email, String password) {
-        User newUser = new User(firstname, lastname, email, password);
+        byte[] salt = PasswordHashing.generateSalt();
+        byte[] hash = PasswordHashing.generateHash(password, salt);
+        User newUser = new User(firstname, lastname, email, hash, salt);
         validatorUser.validate(newUser);
         if (repoUser.save(newUser).isPresent()) {
             throw new ObjectAlreadyInRepositoryException(newUser);
@@ -198,7 +205,9 @@ public class Service implements Observable<Event> {
      * @throws IllegalArgumentException if the id is null
      */
     public User updateUser(Long id, String firstname, String lastname, String email, String password) {
-        User newUser = new User(firstname, lastname, email, password);
+        byte[] salt = PasswordHashing.generateSalt();
+        byte[] hash = PasswordHashing.generateHash(password, salt);
+        User newUser = new User(firstname, lastname, email, hash, salt);
         newUser.setId(id);
         validatorUser.validate(newUser);
         if (repoUser.update(newUser).isPresent()) {

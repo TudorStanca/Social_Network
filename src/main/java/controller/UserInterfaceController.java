@@ -29,7 +29,7 @@ public class UserInterfaceController extends AbstractController implements Obser
     private boolean homeVisited;
 
     private ObserverController currentController = null;
-    private User connectedUser;
+    private UserDTO connectedUser;
 
     @FXML
     private AnchorPane root;
@@ -152,7 +152,7 @@ public class UserInterfaceController extends AbstractController implements Obser
             controller.setupController(new ControllerDTO(service, signInStage));
 
             stage.close();
-            signInStage.show();
+            //signInStage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -170,16 +170,11 @@ public class UserInterfaceController extends AbstractController implements Obser
         Long id = controllerDTO.getConnectedUserId();
         String firstName = controllerDTO.getConnectedUserDTOFirstName();
         String lastName = controllerDTO.getConnectedUserDTOLastName();
-        String email = controllerDTO.getConnectedUserDTOEmail();
-        String password = controllerDTO.getConnectedUserDTOPassword();
         Optional.ofNullable(id).orElseThrow(() -> new SetupControllerException("User id is null in user interface controller"));
         Optional.ofNullable(firstName).orElseThrow(() -> new SetupControllerException("User first name is null in user interface controller"));
         Optional.ofNullable(lastName).orElseThrow(() -> new SetupControllerException("User last name is null in user interface controller"));
-        Optional.ofNullable(email).orElseThrow(() -> new SetupControllerException("User email is null in user interface controller"));
-        Optional.ofNullable(password).orElseThrow(() -> new SetupControllerException("User password is null in user interface controller"));
-        connectedUser = new User(firstName, lastName, email, password);
-        connectedUser.setId(id);
-        connectedUserLabel.setText(connectedUser.toString());
+        connectedUser = new UserDTO(id, firstName, lastName);
+        connectedUserLabel.setText(firstName + " " + lastName);
 
         stage.setOnCloseRequest(event -> {
             service.removeObserver(currentController);

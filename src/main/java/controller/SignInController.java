@@ -41,7 +41,7 @@ public class SignInController extends AbstractController {
             Stage userInterfaceStage = initNewView(fxmlLoader, "Social Network");
 
             Controller controller = fxmlLoader.getController();
-            controller.setupController(new ControllerDTO(service, userInterfaceStage, new UserDTO(user.getId(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword())));
+            controller.setupController(new ControllerDTO(service, userInterfaceStage, new UserDTO(user.getId(), user.getFirstName(), user.getLastName())));
 
             //stage.close();
             userInterfaceStage.show();
