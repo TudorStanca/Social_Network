@@ -2,11 +2,13 @@ package controller;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import service.Service;
 
+import java.io.File;
 import java.io.IOException;
 
 public abstract class AbstractController implements Controller {
@@ -33,5 +35,14 @@ public abstract class AbstractController implements Controller {
         Pane root = fxmlLoader.load();
         stage.getScene().setRoot(root);
         root.requestFocus();
+    }
+
+    protected Image getImageFromString(String imagePath){
+        File file = new File(imagePath);
+        Image image = new Image(file.toURI().toString());
+        if(image.getProgress() != 1 || image.isError()){
+            image = new Image(new File("src/main/resources/images/profilePictures/default-user-icon.png").toURI().toString());
+        }
+        return image;
     }
 }

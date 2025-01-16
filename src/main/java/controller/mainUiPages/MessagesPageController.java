@@ -24,10 +24,7 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import ui.MainApplication;
 import utils.MessageType;
-import utils.events.Event;
-import utils.events.EventType;
-import utils.events.FriendChangeEvent;
-import utils.events.MessageChangeEvent;
+import utils.events.*;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -99,6 +96,8 @@ public class MessagesPageController extends AbstractController implements Observ
                 String[] splitString = ((ToggleButton) newValue).getText().split(", ");
                 selectedFriendId = Long.parseLong(splitString[0]);
                 userNameLabel.setText(splitString[1]);
+                friendIcon.setImage(getImageFromString(splitString[2]));
+                friendIcon.setFitHeight(75); friendIcon.setFitWidth(75); friendIcon.setPreserveRatio(true);
                 friendIcon.setVisible(true);
                 userNameLabel.setVisible(true);
                 setMessageList();
@@ -281,6 +280,12 @@ public class MessagesPageController extends AbstractController implements Observ
                 if (selectedFriendId != null) {
                     setMessageList();
                 }
+            }
+        }
+        else if(e instanceof UserChangeEvent event) {
+            if(event.getEventType() == EventType.UPDATE_USER){
+                setFriendsList();
+                friendIcon.setImage(getImageFromString(event.getImagePath()));
             }
         }
     }

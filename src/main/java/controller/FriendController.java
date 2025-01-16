@@ -8,6 +8,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import utils.Constants;
 import utils.FriendButtonType;
@@ -25,6 +26,9 @@ public class FriendController extends AbstractController {
 
     @FXML
     private Button topButton, declineButton;
+
+    @FXML
+    private ImageView profileImage;
 
     @FXML
     private VBox buttonVBox, labelVBox;
@@ -82,8 +86,13 @@ public class FriendController extends AbstractController {
         Optional.ofNullable(friendId).orElseThrow(() -> new SetupControllerException("Friend id is null in friend controller"));
         Optional.ofNullable(firstName).orElseThrow(() -> new SetupControllerException("Friend first name is null in friend controller"));
         Optional.ofNullable(lastName).orElseThrow(() -> new SetupControllerException("Friend last name is null in friend controller"));
-        friendDTO = new FriendDTO(controllerDTO.getFriendDTOIdFriendship(), friendId, firstName, lastName, controllerDTO.getFriendDTODate());
+        friendDTO = new FriendDTO(controllerDTO.getFriendDTOIdFriendship(), friendId, firstName, lastName, controllerDTO.getFriendDTOImagePath(), controllerDTO.getFriendDTODate());
         friendNameLabel.setText(firstName + " " + lastName);
+
+        profileImage.setImage(getImageFromString(friendDTO.getImagePath()));
+        profileImage.setFitHeight(75);
+        profileImage.setFitWidth(75);
+        profileImage.setPreserveRatio(true);
 
         FriendButtonType type = controllerDTO.getFriendButtonType();
         Optional.ofNullable(type).orElseThrow(() -> new SetupControllerException("Friend button type is null in friend controller"));

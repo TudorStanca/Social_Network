@@ -21,6 +21,7 @@ import ui.MainApplication;
 import utils.events.Event;
 import utils.events.EventType;
 import utils.events.FriendChangeEvent;
+import utils.events.UserChangeEvent;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -128,9 +129,13 @@ public class BroadcastMessageController extends AbstractController implements Ob
 
     @Override
     public void update(Event e) {
-        if (e instanceof FriendChangeEvent) {
-            FriendChangeEvent event = (FriendChangeEvent) e;
+        if (e instanceof FriendChangeEvent event) {
             if (event.getEventType() == EventType.ACCEPT_REQUEST || event.getEventType() == EventType.DELETE_REQUEST) {
+                setFriendsList();
+            }
+        }
+        if (e instanceof UserChangeEvent event){
+            if (event.getEventType() == EventType.UPDATE_USER){
                 setFriendsList();
             }
         }

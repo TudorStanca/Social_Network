@@ -29,7 +29,8 @@ public class UserDBRepository extends AbstractDBRepository<Long, User> {
         String email = resultSet.getString("email");
         byte[] password = resultSet.getBytes("password");
         byte[] salt = resultSet.getBytes("salt");
-        User user = new User(firstName, lastName, email, password, salt);
+        String imagePath = resultSet.getString("image_path");
+        User user = new User(firstName, lastName, email, password, salt, imagePath);
         user.setId(id);
         return user;
     }
@@ -51,13 +52,14 @@ public class UserDBRepository extends AbstractDBRepository<Long, User> {
 
     @Override
     protected PreparedStatement saveToDatabase(User entity, Connection conn) throws SQLException {
-        String query = "INSERT INTO USERS (first_name, last_name, email, password, salt) VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO USERS (first_name, last_name, email, password, salt, image_path) VALUES (?, ?, ?, ?, ?, ?)";
         PreparedStatement statement = conn.prepareStatement(query);
         statement.setString(1, entity.getFirstName());
         statement.setString(2, entity.getLastName());
         statement.setString(3, entity.getEmail());
         statement.setBytes(4, entity.getPassword());
         statement.setBytes(5, entity.getSalt());
+        statement.setString(6, entity.getImagePath());
         return statement;
     }
 
@@ -71,14 +73,15 @@ public class UserDBRepository extends AbstractDBRepository<Long, User> {
 
     @Override
     protected PreparedStatement updateDatabase(User entity, Connection conn) throws SQLException {
-        String query = "UPDATE USERS SET first_name = ?, last_name = ?, email = ?, password = ?, salt = ? WHERE id = ?";
+        String query = "UPDATE USERS SET first_name = ?, last_name = ?, email = ?, password = ?, salt = ?, image_path = ? WHERE id = ?";
         PreparedStatement statement = conn.prepareStatement(query);
         statement.setString(1, entity.getFirstName());
         statement.setString(2, entity.getLastName());
         statement.setString(3, entity.getEmail());
         statement.setBytes(4, entity.getPassword());
         statement.setBytes(5, entity.getSalt());
-        statement.setLong(6, entity.getId());
+        statement.setString(6, entity.getImagePath());
+        statement.setLong(7, entity.getId());
         return statement;
     }
 
@@ -93,6 +96,26 @@ public class UserDBRepository extends AbstractDBRepository<Long, User> {
                 return Optional.of(queryToEntity(resultSet));
             }
             return Optional.empty();
+        } catch (SQLException e) {
+            throw new DatabaseConnectionException();
+        }
+    }
+
+    public Optional<User> updateProfileImage(Long id, String imagePath) {
+        Optional.ofNullable(id).orElseThrow(() -> new IllegalArgumentException("Id cannot be null"));
+        Optional.ofNullable(imagePath).orElseThrow(() -> new IllegalArgumentException("ImagePath cannot be null"));
+
+        try (Connection conn = DriverManager.getConnection(databaseURL, databaseUser, databasePassword)) {
+            Optional<User> user = findOne(id);
+            if (user.isEmpty()) {
+                return Optional.empty();
+            }
+            PreparedStatement statement = conn.prepareStatement("UPDATE USERS SET image_path = ? WHERE id = ?");
+            statement.setString(1, imagePath);
+            statement.setLong(2, id);
+            statement.execute();
+            user.get().setImagePath(imagePath);
+            return user;
         } catch (SQLException e) {
             throw new DatabaseConnectionException();
         }

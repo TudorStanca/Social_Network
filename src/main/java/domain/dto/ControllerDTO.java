@@ -91,6 +91,10 @@ public class ControllerDTO {
         return connectedUserDTO.getPassword();
     }
 
+    public String getConnectedUserDTOImagePath() {
+        return connectedUserDTO.getImagePath();
+    }
+
     public Long getFriendDTOIdFriendship() {
         return friendDTO.getIdFriendship();
     }
@@ -105,6 +109,10 @@ public class ControllerDTO {
 
     public String getFriendDTOLastName() {
         return friendDTO.getLastName();
+    }
+
+    public String getFriendDTOImagePath(){
+        return friendDTO.getImagePath();
     }
 
     public LocalDateTime getFriendDTODate() {

@@ -20,6 +20,7 @@ import utils.FriendButtonType;
 import utils.events.Event;
 import utils.events.EventType;
 import utils.events.FriendChangeEvent;
+import utils.events.UserChangeEvent;
 
 import java.io.IOException;
 import java.util.List;
@@ -78,9 +79,14 @@ public class SearchPageController extends AbstractController implements Observer
 
     @Override
     public void update(Event e) {
-        if (e instanceof FriendChangeEvent) {
-            FriendChangeEvent event = (FriendChangeEvent) e;
+        if (e instanceof FriendChangeEvent event) {
             if (event.getEventType() == EventType.CREATE_REQUEST || event.getEventType() == EventType.DELETE_REQUEST) {
+                setCandidateFriendsList();
+                searchTextField.clear();
+            }
+        }
+        if (e instanceof UserChangeEvent event){
+            if(event.getEventType() == EventType.ADD_USER || event.getEventType() == EventType.DELETE_USER || event.getEventType() == EventType.UPDATE_USER){
                 setCandidateFriendsList();
                 searchTextField.clear();
             }

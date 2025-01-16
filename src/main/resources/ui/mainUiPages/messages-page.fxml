@@ -39,7 +39,7 @@
          <children>
             <ImageView fx:id="friendIcon" fitHeight="50.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@../../images/user-icon.png" />
+                  <Image url="@../../images/profilePictures/default-user-icon.png" />
                </image>
                <VBox.margin>
                   <Insets bottom="20.0" left="30.0" top="20.0" />

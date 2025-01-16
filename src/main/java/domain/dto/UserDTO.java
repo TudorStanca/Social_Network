@@ -7,6 +7,7 @@ public class UserDTO {
     private String lastName = null;
     private String email = null;
     private String password = null;
+    private String imagePath = null;
 
     public UserDTO(Long id, String firstName, String lastName, String email, String password) {
         this.id = id;
@@ -16,10 +17,11 @@ public class UserDTO {
         this.password = password;
     }
 
-    public UserDTO(Long id, String firstName, String lastName) {
+    public UserDTO(Long id, String firstName, String lastName, String imagePath) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.imagePath = imagePath;
     }
 
     public UserDTO(String email, String password) {
@@ -49,5 +51,9 @@ public class UserDTO {
 
     public String getPassword() {
         return password;
+    }
+
+    public String getImagePath() {
+        return imagePath;
     }
 }

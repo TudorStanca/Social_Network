@@ -21,6 +21,7 @@ import utils.FriendButtonType;
 import utils.events.Event;
 import utils.events.EventType;
 import utils.events.FriendChangeEvent;
+import utils.events.UserChangeEvent;
 import utils.paging.Page;
 import utils.paging.Pageable;
 import javafx.event.ActionEvent;
@@ -136,12 +137,17 @@ public class HomePageController extends AbstractController implements ObserverCo
 
     @Override
     public void update(Event e) {
-        if (e instanceof FriendChangeEvent) {
-            FriendChangeEvent event = (FriendChangeEvent) e;
+        if (e instanceof FriendChangeEvent event) {
             if (event.getEventType() == EventType.ACCEPT_REQUEST || event.getEventType() == EventType.DELETE_REQUEST) {
                 setFriendsList();
             }
             setFriendRequestsList();
+        }
+        if (e instanceof UserChangeEvent event){
+            if(event.getEventType() == EventType.UPDATE_USER){
+                setFriendsList();
+                setFriendRequestsList();
+            }
         }
     }
 

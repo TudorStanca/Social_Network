@@ -85,7 +85,7 @@ public class FriendDBRepository extends AbstractDBRepository<Long, Friend> {
 
     public Iterable<FriendDTO> findCandidateFriends(Long id) {
         String query = """
-                SELECT U.id, U.first_name, U.last_name
+                SELECT U.id, U.first_name, U.last_name, U.image_path
                 FROM USERS U
                 WHERE U.ID NOT IN (SELECT U.ID
                     FROM USERS U
@@ -106,7 +106,8 @@ public class FriendDBRepository extends AbstractDBRepository<Long, Friend> {
                     Long idFriend = resultSet.getLong("id");
                     String firstName = resultSet.getString("first_name");
                     String lastName = resultSet.getString("last_name");
-                    lst.add(new FriendDTO(idFriend, firstName, lastName));
+                    String imagePath = resultSet.getString("image_path");
+                    lst.add(new FriendDTO(idFriend, firstName, lastName, imagePath));
                 } while (resultSet.next());
             }
             return lst;
@@ -120,9 +121,10 @@ public class FriendDBRepository extends AbstractDBRepository<Long, Friend> {
         Long idFriend = resultSet.getLong(2);
         String firstName = resultSet.getString("first_name");
         String lastName = resultSet.getString("last_name");
+        String imagePath = resultSet.getString("image_path");
         Timestamp temp = resultSet.getTimestamp("friends_from");
         LocalDateTime friendsFrom = LocalDateTime.ofInstant(Instant.ofEpochMilli(temp.getTime()), ZoneOffset.UTC);
-        return new FriendDTO(idFriendship, idFriend, firstName, lastName, friendsFrom);
+        return new FriendDTO(idFriendship, idFriend, firstName, lastName, imagePath, friendsFrom);
     }
 
     private Iterable<FriendDTO> getIterableListFriendDTO(PreparedStatement statement) throws SQLException {
@@ -138,7 +140,7 @@ public class FriendDBRepository extends AbstractDBRepository<Long, Friend> {
 
     public Iterable<FriendDTO> findPendingFriendRequests(Long userId) {
         String query = """
-                SELECT F.id, U.id, U.first_name, U.last_name, F.friends_from
+                SELECT F.id, U.id, U.first_name, U.last_name, U.image_path, F.friends_from
                 FROM USERS U
                 INNER JOIN FRIENDS F ON U.id = F.id_user_1 AND F.id_user_2 = ?
                 WHERE F.status = false""";
@@ -155,7 +157,7 @@ public class FriendDBRepository extends AbstractDBRepository<Long, Friend> {
 
     public Iterable<FriendDTO> findFriends(Long userId) {
         String query = """
-                SELECT F.id, U.id, U.first_name, U.last_name, F.friends_from
+                SELECT F.id, U.id, U.first_name, U.last_name, U.image_path, F.friends_from
                 FROM USERS U
                 INNER JOIN FRIENDS F on U.id = F.id_user_1 OR U.id = F.id_user_2
                 WHERE (F.id_user_1 = ? OR F.id_user_2 = ?) AND U.id != ? AND F.status = TRUE""";
@@ -193,7 +195,7 @@ public class FriendDBRepository extends AbstractDBRepository<Long, Friend> {
 
     private Iterable<FriendDTO> findFriends(Connection conn, Pageable pageable, Long userId) throws SQLException {
         String query = """
-                SELECT F.id, U.id, U.first_name, U.last_name, F.friends_from
+                SELECT F.id, U.id, U.first_name, U.last_name, U.image_path, F.friends_from
                 FROM USERS U
                 INNER JOIN FRIENDS F on U.id = F.id_user_1 OR U.id = F.id_user_2
                 WHERE (F.id_user_1 = ? OR F.id_user_2 = ?) AND U.id != ? AND F.status = TRUE

@@ -7,9 +7,9 @@
 
 <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="100.0" prefWidth="400.0" spacing="30.0" style="-fx-background-color: #eb1c6f;" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.FriendController">
    <children>
-      <ImageView fitHeight="75.0" fitWidth="75.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fx:id="profileImage" fitHeight="75.0" fitWidth="75.0" pickOnBounds="true" preserveRatio="true">
          <image>
-            <Image url="@../images/user-icon.png" />
+            <Image url="@../images/profilePictures/default-user-icon.png" />
          </image>
       </ImageView>
       <VBox fx:id="labelVBox" alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="176.0">

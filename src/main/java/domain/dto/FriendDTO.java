@@ -8,20 +8,23 @@ public class FriendDTO {
     private Long idFriend;
     private String firstName;
     private String lastName;
+    private String imagePath;
     private LocalDateTime date = null;
 
-    public FriendDTO(Long idFriendship, Long idFriend, String firstName, String lastName, LocalDateTime date) {
+    public FriendDTO(Long idFriendship, Long idFriend, String firstName, String lastName, String imagePath, LocalDateTime date) {
         this.idFriendship = idFriendship;
         this.idFriend = idFriend;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.imagePath = imagePath;
         this.date = date;
     }
 
-    public FriendDTO(Long idFriend, String firstName, String lastName) {
+    public FriendDTO(Long idFriend, String firstName, String lastName, String imagePath) {
         this.idFriend = idFriend;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.imagePath = imagePath;
     }
 
     public Long getIdFriendship() {
@@ -38,6 +41,10 @@ public class FriendDTO {
 
     public String getLastName() {
         return lastName;
+    }
+
+    public String getImagePath() {
+        return imagePath;
     }
 
     public LocalDateTime getDate() {

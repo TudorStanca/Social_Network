@@ -11,6 +11,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
@@ -20,7 +21,9 @@ import ui.MainApplication;
 import utils.events.Event;
 import utils.events.EventType;
 import utils.events.FriendChangeEvent;
+import utils.events.UserChangeEvent;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -44,7 +47,7 @@ public class UserInterfaceController extends AbstractController implements Obser
     private Button homeButton, searchButton, messagesButton, profileButton, signOutButton;
 
     @FXML
-    private ImageView notificationImage;
+    private ImageView profileImage, notificationImage;
 
     private void setNotificationIcon() {
         if (homeVisited) {
@@ -139,7 +142,20 @@ public class UserInterfaceController extends AbstractController implements Obser
 
     @FXML
     private void handleProfileButton() {
-        //TODO
+        service.removeObserver(currentController);
+        setNotificationIcon();
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("mainUiPages/profile-page.fxml"));
+            Pane searchBorderPane = fxmlLoader.load();
+
+            Controller controller = fxmlLoader.getController();
+            controller.setupController(new ControllerDTO(service, stage, new UserDTO(connectedUser.getId())));
+            currentController = (ObserverController) controller;
+
+            changeBorderPane(searchBorderPane);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -170,11 +186,15 @@ public class UserInterfaceController extends AbstractController implements Obser
         Long id = controllerDTO.getConnectedUserId();
         String firstName = controllerDTO.getConnectedUserDTOFirstName();
         String lastName = controllerDTO.getConnectedUserDTOLastName();
+        String imagePath = controllerDTO.getConnectedUserDTOImagePath();
         Optional.ofNullable(id).orElseThrow(() -> new SetupControllerException("User id is null in user interface controller"));
         Optional.ofNullable(firstName).orElseThrow(() -> new SetupControllerException("User first name is null in user interface controller"));
         Optional.ofNullable(lastName).orElseThrow(() -> new SetupControllerException("User last name is null in user interface controller"));
-        connectedUser = new UserDTO(id, firstName, lastName);
+        Optional.ofNullable(imagePath).orElseThrow(() -> new SetupControllerException("User image path is null in user interface controller"));
+        connectedUser = new UserDTO(id, firstName, lastName, imagePath);
         connectedUserLabel.setText(firstName + " " + lastName);
+
+        profileImage.setImage(getImageFromString(imagePath));
 
         stage.setOnCloseRequest(event -> {
             service.removeObserver(currentController);
@@ -184,11 +204,15 @@ public class UserInterfaceController extends AbstractController implements Obser
 
     @Override
     public void update(Event e) {
-        if (e instanceof FriendChangeEvent) {
-            FriendChangeEvent event = (FriendChangeEvent) e;
+        if (e instanceof FriendChangeEvent event) {
             if (event.getEventType() == EventType.CREATE_REQUEST && event.getId().equals(connectedUser.getId())) {
                 notificationImage.setVisible(true);
                 homeVisited = currentController instanceof HomePageController;
+            }
+        }
+        if(e instanceof UserChangeEvent event){
+            if(event.getEventType() == EventType.UPDATE_USER && event.getId().equals(connectedUser.getId())){
+                profileImage.setImage(getImageFromString(event.getImagePath()));
             }
         }
     }

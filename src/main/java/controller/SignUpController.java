@@ -36,7 +36,7 @@ public class SignUpController extends AbstractController {
         String email = this.emailAddress.getText();
         String password = this.password.getText();
         try {
-            User user = service.addUser(firstName, lastName, email, password);
+            User user = service.addUser(firstName, lastName, email, password, "src/main/resources/images/profilePictures/default-user-icon.png");
             MessageAlert.showMessage(stage, "Account create confirmation", "The new account: " + user.toString() + " has been successfully created");
 
             FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("sign-in.fxml"));

@@ -13,10 +13,7 @@ import repository.database.FriendDBRepository;
 import repository.database.MessageDBRepository;
 import repository.database.UserDBRepository;
 import utils.PasswordHashing;
-import utils.events.Event;
-import utils.events.EventType;
-import utils.events.FriendChangeEvent;
-import utils.events.MessageChangeEvent;
+import utils.events.*;
 import utils.observer.Observable;
 import utils.observer.Observer;
 import utils.paging.Page;
@@ -166,14 +163,17 @@ public class Service implements Observable<Event> {
      * @throws ValidationException                if the new user is not valid
      * @throws ObjectAlreadyInRepositoryException if the user is already in repository
      */
-    public User addUser(String firstname, String lastname, String email, String password) {
+    public User addUser(String firstname, String lastname, String email, String password, String imagePath) {
         byte[] salt = PasswordHashing.generateSalt();
         byte[] hash = PasswordHashing.generateHash(password, salt);
-        User newUser = new User(firstname, lastname, email, hash, salt);
+        User newUser = new User(firstname, lastname, email, hash, salt, imagePath);
         validatorUser.validate(newUser);
         if (repoUser.save(newUser).isPresent()) {
             throw new ObjectAlreadyInRepositoryException(newUser);
         }
+
+        notifyObservers(new UserChangeEvent(EventType.ACCEPT_REQUEST));
+
         return newUser;
     }
 
@@ -190,6 +190,7 @@ public class Service implements Observable<Event> {
         if (user.isEmpty()) {
             throw new IdNotFoundException(id);
         }
+        notifyObservers(new UserChangeEvent(EventType.DELETE_REQUEST));
         return user.get();
     }
 
@@ -204,16 +205,26 @@ public class Service implements Observable<Event> {
      * @throws IdNotFoundException      if the id has not been found in repository
      * @throws IllegalArgumentException if the id is null
      */
-    public User updateUser(Long id, String firstname, String lastname, String email, String password) {
+    public User updateUser(Long id, String firstname, String lastname, String email, String password, String imagePath) {
         byte[] salt = PasswordHashing.generateSalt();
         byte[] hash = PasswordHashing.generateHash(password, salt);
-        User newUser = new User(firstname, lastname, email, hash, salt);
+        User newUser = new User(firstname, lastname, email, hash, salt, imagePath);
         newUser.setId(id);
         validatorUser.validate(newUser);
         if (repoUser.update(newUser).isPresent()) {
             throw new IdNotFoundException(id);
         }
+        notifyObservers(new UserChangeEvent(EventType.UPDATE_USER, id, imagePath));
         return newUser;
+    }
+
+    public User updateUserProfileImage(Long id, String imagePath) {
+        Optional<User> newUser = ((UserDBRepository) repoUser).updateProfileImage(id, imagePath);
+        if (newUser.isEmpty()) {
+            throw new IdNotFoundException(id);
+        }
+        notifyObservers(new UserChangeEvent(EventType.UPDATE_USER, id, imagePath));
+        return newUser.get();
     }
 
     /**
