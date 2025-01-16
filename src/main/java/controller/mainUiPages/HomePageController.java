@@ -12,6 +12,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.VBox;
@@ -22,6 +23,7 @@ import utils.events.EventType;
 import utils.events.FriendChangeEvent;
 import utils.paging.Page;
 import utils.paging.Pageable;
+import javafx.event.ActionEvent;
 
 import java.io.IOException;
 import java.util.List;
@@ -48,6 +50,9 @@ public class HomePageController extends AbstractController implements ObserverCo
 
     @FXML
     private VBox innerLeftVBox, innerRightVBox;
+
+    @FXML
+    private Button previousFriendsButton, nextFriendsButton;
 
     @FXML
     public void initialize() {
@@ -80,6 +85,18 @@ public class HomePageController extends AbstractController implements ObserverCo
         });
     }
 
+    @FXML
+    private void handlePreviousFriendsButton(ActionEvent event){
+        friendsCurrentPage--;
+        setFriendsList();
+    }
+
+    @FXML
+    private void handleNextFriendsButton(ActionEvent event){
+        friendsCurrentPage++;
+        setFriendsList();
+    }
+
     private void loadFriends(List<FriendDTO> lst, VBox pane, FriendButtonType friendButtonType) {
         pane.getChildren().clear();
         for (FriendDTO friend : lst) {
@@ -101,7 +118,19 @@ public class HomePageController extends AbstractController implements ObserverCo
 
     private void setFriendsList() {
         Page<FriendDTO> page = service.findUserFriends(new Pageable(friendsCurrentPage, friendsPageSize), connectedUserId);
+        previousFriendsButton.setDisable(false);
+        nextFriendsButton.setDisable(false);
+        if(StreamSupport.stream(page.getElementsOnPage().spliterator(), false).findAny().isEmpty() && friendsCurrentPage + 1 == friendsMaxPage) {
+            friendsCurrentPage--;
+            page = service.findUserFriends(new Pageable(friendsCurrentPage, friendsPageSize), connectedUserId);
+        }
         friendsMaxPage = (int) Math.ceil((double) page.getTotalNumberOfElements() / (double) friendsPageSize);
+        if(friendsCurrentPage == 0){
+            previousFriendsButton.setDisable(true);
+        }
+        if(friendsCurrentPage + 1 == friendsMaxPage){
+            nextFriendsButton.setDisable(true);
+        }
         friendsList.setAll((StreamSupport.stream(page.getElementsOnPage().spliterator(), false).toList()));
     }
 
