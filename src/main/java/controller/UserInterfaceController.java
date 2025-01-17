@@ -160,18 +160,19 @@ public class UserInterfaceController extends AbstractController implements Obser
 
     @FXML
     private void handleSignOutButton() {
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("sign-in.fxml"));
-
-            Stage signInStage = initNewView(fxmlLoader, "Sign In");
-            Controller controller = fxmlLoader.getController();
-            controller.setupController(new ControllerDTO(service, signInStage));
-
-            stage.close();
-            //signInStage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        stage.close();
+//        try {
+//            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("sign-in.fxml"));
+//
+//            Stage signInStage = initNewView(fxmlLoader, "Sign In");
+//            Controller controller = fxmlLoader.getController();
+//            controller.setupController(new ControllerDTO(service, signInStage));
+//
+//            stage.close();
+//            //signInStage.show();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Override

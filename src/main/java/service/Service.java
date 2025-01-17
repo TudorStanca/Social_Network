@@ -192,6 +192,7 @@ public class Service implements Observable<Event> {
         if (user.isEmpty()) {
             throw new IdNotFoundException(id);
         }
+        deleteImage(user.get().getImagePath());
         notifyObservers(new UserChangeEvent(EventType.DELETE_REQUEST));
         return user.get();
     }
@@ -220,31 +221,42 @@ public class Service implements Observable<Event> {
         return newUser;
     }
 
-    public void updateUserProfileImage(Long id, File file) {
-        Optional<User> user = repoUser.findOne(id);
-        if(user.isEmpty()) {
-            throw new IdNotFoundException(id);
+    public void deleteImage(String imagePath) {
+        if(!Objects.equals(imagePath, Constants.DEFAULT_PROFILE_IMAGE)) {
+            new File(imagePath).delete();
         }
+    }
+
+    public Path saveImageLocal(File file, String imagePathToDelete) {
         try {
             Path copied;
             int number = 0;
+
             do {
                 int pos = file.getName().lastIndexOf("."); // the . from the extension
                 String fileName = file.getName().substring(0, pos) + ((number == 0) ? "" : "(" + number + ")") + file.getName().substring(pos);
-                copied = Paths.get("src/main/resources/images/profilePictures").resolve(fileName);
+                copied = Paths.get(Constants.DEFAULT_PROFILE_IMAGE_FOLDER).resolve(fileName);
                 number++;
-            } while(Files.exists(copied));
+            } while (Files.exists(copied));
+
             Files.copy(file.toPath(), copied);
 
-            ((UserDBRepository) repoUser).updateProfileImage(id, copied.toString());
-            if(!Objects.equals(user.get().getImagePath(), Constants.DEFAULT_PROFILE_IMAGE)) {
-                new File(user.get().getImagePath()).delete();
-            }
-            notifyObservers(new UserChangeEvent(EventType.UPDATE_USER, id, copied.toString()));
+            deleteImage(imagePathToDelete);
+            return copied;
         }
-        catch (IOException e){
-            e.printStackTrace();
+        catch (IOException e) {
+            throw new RuntimeException(e);
         }
+    }
+
+    public void updateUserProfileImage(Long id, File file) {
+        Optional<User> user = repoUser.findOne(id);
+        user.orElseThrow(() -> new IdNotFoundException(id));
+
+        Path newImagePath = saveImageLocal(file, user.get().getImagePath());
+        ((UserDBRepository) repoUser).updateProfileImage(id, newImagePath.toString());
+
+        notifyObservers(new UserChangeEvent(EventType.UPDATE_USER, id, newImagePath.toString()));
     }
 
     /**

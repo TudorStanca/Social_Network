@@ -137,7 +137,7 @@ public class HomePageController extends AbstractController implements ObserverCo
         if(friendsCurrentPage == 0){
             previousFriendsButton.setDisable(true);
         }
-        if(friendsCurrentPage + 1 == friendsMaxPage){
+        if(friendsCurrentPage + 1 == friendsMaxPage || page.getTotalNumberOfElements() == 0){
             nextFriendsButton.setDisable(true);
         }
         friendsList.setAll((StreamSupport.stream(page.getElementsOnPage().spliterator(), false).toList()));

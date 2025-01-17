@@ -16,7 +16,12 @@
             </HBox>
             <TextField fx:id="emailAddress" promptText="Email Address" />
             <PasswordField fx:id="password" promptText="Password" />
-            <Button mnemonicParsing="false" onAction="#handleSignUpButton" text="Sign Up" />
+            <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0" spacing="50.0">
+               <children>
+                  <Button onAction="#handleProfileImageButton" mnemonicParsing="false" text="Add Profile Image" />
+                  <Button mnemonicParsing="false" onAction="#handleSignUpButton" text="Sign Up" />
+               </children>
+            </HBox>
             <HBox alignment="TOP_CENTER" prefHeight="0.0" prefWidth="260.0">
                <children>
                   <Label prefHeight="23.0" prefWidth="135.0" text="Already have an account?" />

@@ -10,13 +10,17 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
 import ui.MainApplication;
 import utils.Constants;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
 public class SignUpController extends AbstractController {
+
+    private String profileImagePath = Constants.DEFAULT_PROFILE_IMAGE;
 
     @FXML
     private TextField firstName;
@@ -37,7 +41,7 @@ public class SignUpController extends AbstractController {
         String email = this.emailAddress.getText();
         String password = this.password.getText();
         try {
-            User user = service.addUser(firstName, lastName, email, password, Constants.DEFAULT_PROFILE_IMAGE);
+            User user = service.addUser(firstName, lastName, email, password, profileImagePath);
             MessageAlert.showMessage(stage, "Account create confirmation", "The new account: " + user.toString() + " has been successfully created");
 
             FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("sign-in.fxml"));
@@ -53,7 +57,20 @@ public class SignUpController extends AbstractController {
     }
 
     @FXML
+    private void handleProfileImageButton(ActionEvent event) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select a profile image");
+        fileChooser.setInitialDirectory(new File("C:\\"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG Files", "*.png"));
+        File file = fileChooser.showOpenDialog(stage);
+        if(file != null){
+            profileImagePath = service.saveImageLocal(file, profileImagePath).toString();
+        }
+    }
+
+    @FXML
     private void handleSignInHyperlink(ActionEvent event) {
+        service.deleteImage(profileImagePath);
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("sign-in.fxml"));
             changeRoot(fxmlLoader);

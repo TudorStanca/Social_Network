@@ -13,11 +13,14 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import ui.MainApplication;
 import utils.FriendButtonType;
 import utils.events.Event;
@@ -79,11 +82,6 @@ public class ProfilePageController extends AbstractController implements Observe
     }
 
     @FXML
-    private void handleChangePassword (ActionEvent event){
-
-    }
-
-    @FXML
     private void handleChangeImage (ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select a profile image");
@@ -93,6 +91,29 @@ public class ProfilePageController extends AbstractController implements Observe
         if(file != null){
             service.updateUserProfileImage(connectedUserId, file);
         }
+    }
+
+    @FXML
+    private void handleDeleteUser(ActionEvent event) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Are you sure?", ButtonType.YES, ButtonType.NO, ButtonType.CANCEL);
+        alert.showAndWait();
+
+        if (alert.getResult() == ButtonType.YES) {
+            service.deleteUser(connectedUserId);
+            stage.close();
+        }
+//        try {
+//            FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("sign-in.fxml"));
+//
+//            Stage signInStage = initNewView(fxmlLoader, "Sign In");
+//            Controller controller = fxmlLoader.getController();
+//            controller.setupController(new ControllerDTO(service, signInStage));
+//
+//            stage.close();
+//            signInStage.show();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     private void setNumberOfFriendsLabel(){
