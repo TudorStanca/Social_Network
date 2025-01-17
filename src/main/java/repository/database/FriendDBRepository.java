@@ -174,23 +174,33 @@ public class FriendDBRepository extends AbstractDBRepository<Long, Friend> {
         }
     }
 
-    private int countFriends(Connection conn, Long userId) throws SQLException {
+    private int countFriends(Connection conn, Long userId, boolean status) throws SQLException {
         String query = """
             SELECT COUNT(*)
             FROM USERS U
             INNER JOIN FRIENDS F on U.id = F.id_user_1 OR U.id = F.id_user_2
-            WHERE (F.id_user_1 = ? OR F.id_user_2 = ?) AND U.id != ? AND F.status = TRUE""";
+            WHERE (F.id_user_1 = ? OR F.id_user_2 = ?) AND U.id != ? AND F.status = ?""";
         Optional.ofNullable(userId).orElseThrow(() -> new IllegalArgumentException("Id cannot be null"));
 
         PreparedStatement statement = conn.prepareStatement(query);
         statement.setLong(1, userId);
         statement.setLong(2, userId);
         statement.setLong(3, userId);
+        statement.setBoolean(4, status);
         ResultSet resultSet = statement.executeQuery();
         if (resultSet.next()) {
             return resultSet.getInt("count");
         }
         return 0;
+    }
+
+    public int countFriends(Long userId, boolean status) {
+        try(Connection conn = DriverManager.getConnection(databaseURL, databaseUser, databasePassword)){
+            return countFriends(conn, userId, status);
+        }
+        catch (SQLException e) {
+            throw new DatabaseConnectionException();
+        }
     }
 
     private Iterable<FriendDTO> findFriends(Connection conn, Pageable pageable, Long userId) throws SQLException {
@@ -213,7 +223,7 @@ public class FriendDBRepository extends AbstractDBRepository<Long, Friend> {
 
     public Page<FriendDTO> findAllFriendsOnPage(Pageable pageable, Long userId) {
         try(Connection conn = DriverManager.getConnection(databaseURL, databaseUser, databasePassword)){
-            int totalNumberOfFriends = countFriends(conn, userId);
+            int totalNumberOfFriends = countFriends(conn, userId, true);
             if(totalNumberOfFriends == 0){
                 return new Page<>(Collections.emptyList(), totalNumberOfFriends);
             }

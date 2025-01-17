@@ -58,7 +58,10 @@ public class MessagesPageController extends AbstractController implements Observ
     private ScrollPane leftScrollPane, rightScrollPane;
 
     @FXML
-    private Label userNameLabel;
+    private StackPane stackPane;
+
+    @FXML
+    private Label userNameLabel, friendStatusLabel;
 
     @FXML
     private TextField searchTextField, messageTextField;
@@ -66,19 +69,18 @@ public class MessagesPageController extends AbstractController implements Observ
     @FXML
     private ImageView friendIcon;
 
+    @FXML
+    private Button broadcastButton;
+
     private ToggleGroup toggleGroupFriends = new ToggleGroup(), toggleGroupMessages = new ToggleGroup();
 
     @FXML
     public void initialize() {
         leftVBox.setPrefSize(width * 0.80 * 0.30, height);
-        leftScrollPane.setPrefHeight(height);
-        leftScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        leftScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        stackPane.setPrefHeight(height);
         friendsListVBox.prefWidthProperty().bind(leftScrollPane.widthProperty());
         rightVBox.setPrefSize(width * 0.80 * 0.70, height);
         rightScrollPane.setPrefHeight(height - 177);
-        rightScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        rightScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         messagesVBox.prefWidthProperty().bind(rightScrollPane.widthProperty());
 
         messageTextField.setPrefWidth(width * 0.80 * 0.70 - 100);
@@ -159,6 +161,8 @@ public class MessagesPageController extends AbstractController implements Observ
 
     private void setFriendsList() {
         friendsList.setAll((StreamSupport.stream(service.findUserFriends(connectedUserId).spliterator(), false).toList()));
+        friendStatusLabel.setVisible(friendsList.isEmpty());
+        broadcastButton.setDisable(friendsList.isEmpty());
     }
 
     private void setMessageList() {

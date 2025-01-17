@@ -12,8 +12,10 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import ui.MainApplication;
 import utils.FriendButtonType;
@@ -43,9 +45,14 @@ public class SearchPageController extends AbstractController implements Observer
     private TextField searchTextField;
 
     @FXML
+    private Label friendStatusLabel;
+
+    @FXML
+    private StackPane stackPane;
+
+    @FXML
     public void initialize() {
-        searchScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        searchScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        friendStatusLabel.setMouseTransparent(true);
 
         searchTextField.textProperty().addListener(o -> handleFilter());
         candidateFriendsList.addListener((ListChangeListener<FriendDTO>) change -> {
@@ -55,6 +62,8 @@ public class SearchPageController extends AbstractController implements Observer
 
     private void setCandidateFriendsList() {
         candidateFriendsList.setAll((StreamSupport.stream(service.findUserCandidateFriends(connectedUserId).spliterator(), false).toList()));
+        friendStatusLabel.setVisible(candidateFriendsList.isEmpty());
+        searchTextField.setDisable(candidateFriendsList.isEmpty());
     }
 
     private void handleFilter() {

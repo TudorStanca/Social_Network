@@ -13,8 +13,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import ui.MainApplication;
 import utils.FriendButtonType;
@@ -56,15 +58,20 @@ public class HomePageController extends AbstractController implements ObserverCo
     private Button previousFriendsButton, nextFriendsButton;
 
     @FXML
+    private StackPane rightStackPane, leftStackPane;
+
+    @FXML
+    private Label friendRequestsStatusLabel, friendStatusLabel;
+
+    @FXML
     public void initialize() {
         leftVBox.setPrefWidth(borderPaneWidth * 0.50);
         rightVBox.setPrefWidth(borderPaneWidth * 0.50);
-        leftScrollPane.setPrefHeight(height);
-        leftScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        leftScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        rightScrollPane.setPrefHeight(height);
-        rightScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        rightScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        leftStackPane.setPrefHeight(height);
+        rightStackPane.setPrefHeight(height);
+
+        friendStatusLabel.setMouseTransparent(true);
+        friendRequestsStatusLabel.setMouseTransparent(true);
 
         friendRequestsList.addListener((ListChangeListener<FriendDTO>) change -> {
             loadFriends(friendRequestsList, innerRightVBox, FriendButtonType.ACCEPT);
@@ -115,6 +122,7 @@ public class HomePageController extends AbstractController implements ObserverCo
 
     private void setFriendRequestsList() {
         friendRequestsList.setAll((StreamSupport.stream(service.findPendingRecievingFriendRequests(connectedUserId).spliterator(), false).toList()));
+        friendRequestsStatusLabel.setVisible(friendRequestsList.isEmpty());
     }
 
     private void setFriendsList() {
@@ -133,6 +141,7 @@ public class HomePageController extends AbstractController implements ObserverCo
             nextFriendsButton.setDisable(true);
         }
         friendsList.setAll((StreamSupport.stream(page.getElementsOnPage().spliterator(), false).toList()));
+        friendStatusLabel.setVisible(friendsList.isEmpty());
     }
 
     @Override

@@ -5,29 +5,39 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.mainUiPages.HomePageController">
    <right>
-      <VBox fx:id="rightVBox" alignment="TOP_RIGHT" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+      <VBox fx:id="rightVBox" alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
          <children>
             <Label text="Incoming friend requests" />
-            <ScrollPane fx:id="rightScrollPane" prefHeight="200.0" prefWidth="200.0">
-               <content>
-                  <VBox fx:id="innerRightVBox" prefHeight="200.0" prefWidth="100.0" />
-               </content>
-            </ScrollPane>
+            <StackPane fx:id="rightStackPane" prefHeight="150.0" prefWidth="200.0">
+               <children>
+                  <ScrollPane fx:id="rightScrollPane" hbarPolicy="NEVER" prefHeight="200.0" prefWidth="200.0" vbarPolicy="NEVER">
+                     <content>
+                        <VBox fx:id="innerRightVBox" prefHeight="200.0" prefWidth="100.0" />
+                     </content>
+                  </ScrollPane>
+                  <Label fx:id="friendRequestsStatusLabel" text="You have no pending requests" />
+               </children>
+            </StackPane>
          </children></VBox>
    </right>
    <left>
-      <VBox fx:id="leftVBox" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+      <VBox fx:id="leftVBox" alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
          <children>
             <Label text="Friends" />
-            <ScrollPane fx:id="leftScrollPane" prefHeight="200.0" prefWidth="200.0">
-               <content>
-                  <VBox fx:id="innerLeftVBox" prefHeight="200.0" prefWidth="100.0" />
-               </content>
-            </ScrollPane>
+            <StackPane fx:id="leftStackPane" prefHeight="150.0" prefWidth="200.0">
+               <children>
+                  <ScrollPane fx:id="leftScrollPane" hbarPolicy="NEVER" prefHeight="200.0" prefWidth="200.0" vbarPolicy="NEVER">
+                     <content>
+                        <VBox fx:id="innerLeftVBox" prefHeight="200.0" prefWidth="100.0" />
+                     </content>
+                  </ScrollPane>
+                  <Label fx:id="friendStatusLabel" text="You have no friends" />
+               </children>
+            </StackPane>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="100.0">
                <children>
-                  <Button fx:id="previousFriendsButton" onAction="#handlePreviousFriendsButton" mnemonicParsing="false" text="Previous" />
-                  <Button fx:id="nextFriendsButton" onAction="#handleNextFriendsButton" mnemonicParsing="false" text="Next" />
+                  <Button fx:id="previousFriendsButton" mnemonicParsing="false" onAction="#handlePreviousFriendsButton" text="Previous" />
+                  <Button fx:id="nextFriendsButton" mnemonicParsing="false" onAction="#handleNextFriendsButton" text="Next" />
                </children>
             </HBox>
          </children>

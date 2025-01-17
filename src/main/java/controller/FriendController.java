@@ -116,6 +116,10 @@ public class FriendController extends AbstractController {
                 topButton.setOnAction(this::handleDeleteButton);
                 friendsFromLabel.setText("From: " + friendDTO.getDate().format(Constants.DATE_FORMATTER));
             }
+            case NOTHING -> {
+                buttonVBox.getChildren().removeAll(topButton, declineButton);
+                friendsFromLabel.setText("Sent at: " + friendDTO.getDate().format(Constants.DATE_FORMATTER));
+            }
         }
     }
 }

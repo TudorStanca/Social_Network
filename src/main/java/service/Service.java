@@ -317,6 +317,14 @@ public class Service implements Observable<Event> {
         return newFriend;
     }
 
+    public int countFriends(Long userId) {
+        return ((FriendDBRepository) repoFriend).countFriends(userId, true);
+    }
+
+    public int countFriendRequests(Long userId) {
+        return ((FriendDBRepository) repoFriend).countFriends(userId, false);
+    }
+
     public Message addMessage(Long id_from, List<Long> id_to, String message, LocalDateTime date, Long id_reply) {
         Message newMessage = new Message(id_from, id_to, message, date);
         newMessage.setReply(id_reply);
