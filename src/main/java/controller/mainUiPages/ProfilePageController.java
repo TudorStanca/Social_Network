@@ -9,10 +9,6 @@ import javafx.stage.FileChooser;
 import utils.events.Event;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Optional;
 
 public class ProfilePageController extends AbstractController implements ObserverController {
@@ -32,21 +28,7 @@ public class ProfilePageController extends AbstractController implements Observe
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG Files", "*.png"));
         File file = fileChooser.showOpenDialog(stage);
         if(file != null){
-            try {
-                Path copied;
-                int number = 0;
-                do {
-                    int pos = file.getName().lastIndexOf("."); // the . from the extension
-                    String fileName = file.getName().substring(0, pos) + ((number == 0) ? "" : "(" + number + ")") + file.getName().substring(pos);
-                    copied = Paths.get("src/main/resources/images/profilePictures").resolve(fileName);
-                    number++;
-                } while(Files.exists(copied));
-                Files.copy(file.toPath(), copied);
-                service.updateUserProfileImage(connectedUserId, copied.toString());
-            }
-            catch (IOException e){
-                e.printStackTrace();
-            }
+            service.updateUserProfileImage(connectedUserId, file);
         }
     }
 

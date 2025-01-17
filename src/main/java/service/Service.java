@@ -12,6 +12,7 @@ import repository.Repository;
 import repository.database.FriendDBRepository;
 import repository.database.MessageDBRepository;
 import repository.database.UserDBRepository;
+import utils.Constants;
 import utils.PasswordHashing;
 import utils.events.*;
 import utils.observer.Observable;
@@ -19,12 +20,13 @@ import utils.observer.Observer;
 import utils.paging.Page;
 import utils.paging.Pageable;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.StreamSupport;
 
 public class Service implements Observable<Event> {
@@ -218,13 +220,31 @@ public class Service implements Observable<Event> {
         return newUser;
     }
 
-    public User updateUserProfileImage(Long id, String imagePath) {
-        Optional<User> newUser = ((UserDBRepository) repoUser).updateProfileImage(id, imagePath);
-        if (newUser.isEmpty()) {
+    public void updateUserProfileImage(Long id, File file) {
+        Optional<User> user = repoUser.findOne(id);
+        if(user.isEmpty()) {
             throw new IdNotFoundException(id);
         }
-        notifyObservers(new UserChangeEvent(EventType.UPDATE_USER, id, imagePath));
-        return newUser.get();
+        try {
+            Path copied;
+            int number = 0;
+            do {
+                int pos = file.getName().lastIndexOf("."); // the . from the extension
+                String fileName = file.getName().substring(0, pos) + ((number == 0) ? "" : "(" + number + ")") + file.getName().substring(pos);
+                copied = Paths.get("src/main/resources/images/profilePictures").resolve(fileName);
+                number++;
+            } while(Files.exists(copied));
+            Files.copy(file.toPath(), copied);
+
+            ((UserDBRepository) repoUser).updateProfileImage(id, copied.toString());
+            if(!Objects.equals(user.get().getImagePath(), Constants.DEFAULT_PROFILE_IMAGE)) {
+                new File(user.get().getImagePath()).delete();
+            }
+            notifyObservers(new UserChangeEvent(EventType.UPDATE_USER, id, copied.toString()));
+        }
+        catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
     /**
